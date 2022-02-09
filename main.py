@@ -45,7 +45,7 @@ def fetch(session, page):
         if data['success']:
             toppage = data['totalPages']
             for auction in data['auctions']:
-                if not auction['claimed'] and 'bin' in auction and not "Furniture" in auction["item_lore"]: # if the auction isn't a) claimed and is b) BIN
+                if not auction['claimed'] and auction['bin'] == True and not "Furniture" in auction["item_lore"]: # if the auction isn't a) claimed and is b) BIN
                     # removes level if it's a pet, also 
                     name = str(auction['item_name'])
                     tier = str(auction['tier'])

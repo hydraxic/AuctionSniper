@@ -11,9 +11,10 @@ async def check_logs():
         with open(log, 'r+') as f:
             if os.path.getsize('./logs.txt') > 0:
                 print(f.read())
+                f.seek(0)
                 data = f.read()
+                await channel.send(data)
                 f.truncate(0)
-                await channel.send(f.read())
     except FileNotFoundError:
         pass
 

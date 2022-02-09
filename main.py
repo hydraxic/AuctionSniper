@@ -126,8 +126,11 @@ def main():
         
         done = default_timer() - START_TIME
         #if op: winsound.Beep(500, 500) # emits a frequency 500hz, for 500ms
+        f = open('./logs.txt', 'a')
         for result in results:
-            print("Auction View " + "/viewauction " + str(result[0][0]) + " | Item Name: " + str(result[0][1]) + " | Item price: {:,}".format(result[0][2]), " | Second lowest BIN: {:,}".format(result[1]) + " | Time to refresh AH: " + str(round(done, 2)))
+            toprint = "Auction View " + "/viewauction " + str(result[0][0]) + " | Item Name: " + str(result[0][1]) + " | Item price: {:,}".format(result[0][2]), " | Second lowest BIN: {:,}".format(result[1]) + " | Time to refresh AH: " + str(round(done, 2))
+            f.write(toprint)
+            print(toprint)
         print("\nLooking for auctions...")
 
 print("Looking for auctions...")

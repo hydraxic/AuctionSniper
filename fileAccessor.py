@@ -1,14 +1,21 @@
 from discord.ext import commands
 import time
+import os
 
 bot = commands.Bot(command_prefix = 'fa.')
 
 async def check_logs():
     channel = bot.get_channel(941035604064473168)
-    log = './fliplogs/logs.txt'
-    with open(log, 'r') as f:
-        if f.read() != None:
-            await channel.send(f.read())
+    log = './logs.txt'
+    try:
+        with open(log, 'r+') as f:
+            if os.path.getsize('./logs.txt') > 0:
+                print(f.read())
+                data = f.read()
+                f.truncate(0)
+                await channel.send(f.read())
+    except FileNotFoundError:
+        pass
 
 @bot.command(name = 'run')
 async def start_check(ctx):

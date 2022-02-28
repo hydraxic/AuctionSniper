@@ -34,7 +34,7 @@ NOTIFY = False
 
 # Constant for the lowest percent difference you want to be shown to you; feel free to change this
 LOWEST_PERCENT_MARGIN = 1/2
-LARGE_MARGIN_P_M = 0.75
+LARGE_MARGIN_P_M = 1
 LARGE_MARGIN = 1000000 # flips that are more than a mil profit
 
 
@@ -78,7 +78,7 @@ def fetch(session, page):
                         prices[index] = [auction['starting_bid'], float("inf")]
                         
                     # if the auction fits in some parameters
-                    print(str(prices[index][0]) + ', ' + str(prices[index][1]))
+                    #print(str(prices[index][0]) + ', ' + str(prices[index][1]))
                     if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
                         results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
                     if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and auction['start']+60000 > now:
@@ -167,12 +167,15 @@ def dostuff():
         now = float('inf')
         c = requests.get("https://api.hypixel.net/skyblock/auctions?page=0").json()
         if c:
-            if c['lastUpdated'] != prevnow:
-                now = c['lastUpdated']
-                toppage = c['totalPages']
-                main()
-            else:
-                now = prevnow
+            try:
+                if c['lastUpdated'] != prevnow:
+                    now = c['lastUpdated']
+                    toppage = c['totalPages']
+                    main()
+                else:
+                    now = prevnow
+            except KeyError:
+                print('KeyError: lastUpdated')
     time.sleep(0.25)
 
 while True:

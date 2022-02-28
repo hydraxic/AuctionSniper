@@ -18,6 +18,8 @@ now = resp['lastUpdated']
 toppage = resp['totalPages']
 
 results = []
+lm_results = []
+
 prices = {}
 
 # stuff to remove
@@ -25,13 +27,16 @@ STARS = [" ✦", "⚚ ", " ✪", "✪"]
 REFORGES = ["Stiff ", "Lucky ", "Jerry's ", "Dirty ", "Fabled ", "Suspicious ", "Gilded ", "Warped ", "Withered ", "Bulky ", "Stellar ", "Heated ", "Ambered ", "Fruitful ", "Magnetic ", "Fleet ", "Mithraic ", "Auspicious ", "Refined ", "Headstrong ", "Precise ", "Spiritual ", "Moil ", "Blessed ", "Toil ", "Bountiful ", "Candied ", "Submerged ", "Reinforced ", "Cubic ", "Warped ", "Undead ", "Ridiculous ", "Necrotic ", "Spiked ", "Jaded ", "Loving ", "Perfect ", "Renowned ", "Giant ", "Empowered ", "Ancient ", "Sweet ", "Silky ", "Bloody ", "Shaded ", "Gentle ", "Odd ", "Fast ", "Fair ", "Epic ", "Sharp ", "Heroic ", "Spicy ", "Legendary ", "Deadly ", "Fine ", "Grand ", "Hasty ", "Neat ", "Rapid ", "Unreal ", "Awkward ", "Rich ", "Clean ", "Fierce ", "Heavy ", "Light ", "Mythic ", "Pure ", "Smart ", "Titanic ", "Wise ", "Bizarre ", "Itchy ", "Ominous ", "Pleasant ", "Pretty ", "Shiny ", "Simple ", "Strange ", "Vivid ", "Godly ", "Demonic ", "Forceful ", "Hurtful ", "Keen ", "Strong ", "Superior ", "Unpleasant ", "Zealous "]
 
 # Constant for the lowest priced item you want to be shown to you; feel free to change this
-LOWEST_PRICE = 5
+LOWEST_PRICE = 500
 
 # Constant to turn on/off desktop notifications
 NOTIFY = False
 
 # Constant for the lowest percent difference you want to be shown to you; feel free to change this
 LOWEST_PERCENT_MARGIN = 1/2
+LARGE_MARGIN_P_M = 0.75
+LARGE_MARGIN = 1000000 # flips that are more than a mil profit
+
 
 START_TIME = default_timer()
 
@@ -73,8 +78,12 @@ def fetch(session, page):
                         prices[index] = [auction['starting_bid'], float("inf")]
                         
                     # if the auction fits in some parameters
+                    print(str(prices[index][0]) + ', ' + str(prices[index][1]))
                     if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
                         results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                    if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and auction['start']+60000 > now:
+                        print('ok!')
+                        lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
         return data
 
 async def get_data_asynchronous():
@@ -101,6 +110,7 @@ def main():
     global results, prices, START_TIME
     START_TIME = default_timer()
     results = []
+    lm_results = []
     prices = {}
     
     loop = asyncio.new_event_loop()
@@ -110,6 +120,8 @@ def main():
     
     # Makes sure all the results are still up to date
     if len(results): results = [[entry, prices[entry[3]][1]] for entry in results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
+    if len(lm_results): lm_results = [[entry, prices[entry[3]][1]] for entry in lm_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LOWEST_PERCENT_MARGIN and prices[entry[3]][1] - prices[entry[3]][1] >= LARGE_MARGIN)]
+
 
     if len(results): # if there's results to print
 
@@ -132,6 +144,15 @@ def main():
                 fAp.write(toprint)
                 #fAp.close()
                 print(toprint)
+        
+        if len(lm_results):
+            for result in lm_results:
+                with open('./lm_logs.txt', 'a') as fAp:
+                    toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item Name: `" + str(result[0][1]) + "` | Item price: `{:,}`".format(result[0][2]) + " | Second lowest BIN: `{:,}`".format(result[1])
+                    fAp.write(toprint)
+                    #fAp.close()
+                    print(toprint)
+
         print("\nLooking for auctions...")
 
 print("Looking for auctions...")

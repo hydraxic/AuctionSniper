@@ -148,7 +148,7 @@ def main():
         
     if len(lm_results):
         for result in lm_results:
-            with open('./logs_lm.txt', 'a') as fAp2:
+            with open('./logs_lm .txt', 'a') as fAp2:
                 toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item Name: `" + str(result[0][1]) + "` | Item price: `{:,}`".format(result[0][2]) + " | Second lowest BIN: `{:,}`".format(result[1])
                 fAp2.write(toprint)
                 #fAp.close()

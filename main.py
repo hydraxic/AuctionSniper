@@ -120,7 +120,7 @@ def main():
     
     # Makes sure all the results are still up to date
     if len(results): results = [[entry, prices[entry[3]][1]] for entry in results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
-    if len(lm_results): lm_results = [[entry, prices[entry[3]][1]] for entry in lm_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LOWEST_PERCENT_MARGIN and prices[entry[3]][1] - prices[entry[3]][1] >= LARGE_MARGIN)]
+    if len(lm_results): lm_results = [[entry, prices[entry[3]][1]] for entry in lm_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][1] >= LARGE_MARGIN)]
 
 
     if len(results): # if there's results to print
@@ -144,16 +144,15 @@ def main():
                 fAp.write(toprint)
                 #fAp.close()
                 print(toprint)
-        
-        if len(lm_results):
-            for result in lm_results:
-                with open('./lm_logs.txt', 'a') as fAp:
-                    toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item Name: `" + str(result[0][1]) + "` | Item price: `{:,}`".format(result[0][2]) + " | Second lowest BIN: `{:,}`".format(result[1])
-                    fAp.write(toprint)
-                    #fAp.close()
-                    print(toprint)
-
         print("\nLooking for auctions...")
+        
+    if len(lm_results):
+        for result in lm_results:
+            with open('./logs_lm.txt', 'a') as fAp2:
+                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item Name: `" + str(result[0][1]) + "` | Item price: `{:,}`".format(result[0][2]) + " | Second lowest BIN: `{:,}`".format(result[1])
+                fAp2.write(toprint)
+                #fAp.close()
+                print(toprint)
 
 print("Looking for auctions...")
 main()

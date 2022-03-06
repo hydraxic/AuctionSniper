@@ -1,4 +1,5 @@
 import asyncio
+from json import JSONDecodeError
 import re
 import os
 op = os.name == 'nt'
@@ -45,46 +46,49 @@ def fetch(session, page):
     base_url = "https://api.hypixel.net/skyblock/auctions?page="
     with session.get(base_url + page) as response:
         # puts response in a dict
-        data = response.json()
-        toppage = data['totalPages']
-        if data['success']:
+        try:
+            data = response.json()
             toppage = data['totalPages']
-            for auction in data['auctions']:
-                if not auction['claimed'] and auction['bin'] == True and not "Furniture" in auction["item_lore"]: # if the auction isn't a) claimed and is b) BIN
-                    # removes level if it's a pet, also 
-                    name = str(auction['item_name'])
-                    tier = str(auction['tier'])
-                    index = re.sub("\[[^\]]*\]", "", name + tier)
-                    # removes reforges and other yucky characters
-                    for reforge in REFORGES:
-                        if reforge in index:
-                            index = index.replace(reforge, "")
+            if data['success']:
+                toppage = data['totalPages']
+                for auction in data['auctions']:
+                    if not auction['claimed'] and auction['bin'] == True and not "Furniture" in auction["item_lore"]: # if the auction isn't a) claimed and is b) BIN
+                        # removes level if it's a pet, also 
+                        name = str(auction['item_name'])
+                        tier = str(auction['tier'])
+                        index = re.sub("\[[^\]]*\]", "", name + tier)
+                        # removes reforges and other yucky characters
+                        for reforge in REFORGES:
+                            if reforge in index:
+                                index = index.replace(reforge, "")
+                            else:
+                                index = index.replace(reforge, "")
+                        for star in STARS:
+                            if star in index:
+                                index = index.replace(star, "")
+                            else:
+                                index = index.replace(star, "")
+                        # if the current item already has a price in the prices map, the price is updated
+                        if index in prices:
+                            if prices[index][0] > auction['starting_bid']:
+                                prices[index][1] = prices[index][0]
+                                prices[index][0] = auction['starting_bid']
+                            elif prices[index][1] > auction['starting_bid']:
+                                prices[index][1] = auction['starting_bid']
+                        # otherwise, it's added to the prices map
                         else:
-                            index = index.replace(reforge, "")
-                    for star in STARS:
-                        if star in index:
-                            index = index.replace(star, "")
-                        else:
-                            index = index.replace(star, "")
-                    # if the current item already has a price in the prices map, the price is updated
-                    if index in prices:
-                        if prices[index][0] > auction['starting_bid']:
-                            prices[index][1] = prices[index][0]
-                            prices[index][0] = auction['starting_bid']
-                        elif prices[index][1] > auction['starting_bid']:
-                            prices[index][1] = auction['starting_bid']
-                    # otherwise, it's added to the prices map
-                    else:
-                        prices[index] = [auction['starting_bid'], float("inf")]
-                        
-                    # if the auction fits in some parameters
-                    print(str(prices[index][0]) + ', ' + str(prices[index][1]))
-                    if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
-                        results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
-                    if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and auction['start']+60000 > now:
-                        print('ok!')
-                        lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
-        return data
+                            prices[index] = [auction['starting_bid'], float("inf")]
+                            
+                        # if the auction fits in some parameters
+                        print(str(prices[index][0]) + ', ' + str(prices[index][1]))
+                        if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
+                            results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                        if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and auction['start']+60000 > now:
+                            print('ok!')
+                            lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+            return data
+        except JSONDecodeError:
+            pass
 
 async def get_data_asynchronous():
     # puts all the page strings

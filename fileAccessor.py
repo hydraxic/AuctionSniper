@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 import time
 import os
@@ -6,8 +7,13 @@ import collections
 bot = commands.Bot(command_prefix = 'fa.')
 
 def sort_margins(margins):
-    sorted_dict_to_list = sorted(margins, key = lambda tup: tup[0], reverse=True)
-    return sorted_dict_to_list
+    try:
+        sorteddict = collections.OrderedDict(sorted(margins.items(), reverse=True))
+        #sorted_dict_to_list = sorted(margins, key = lambda tup: tup[0], reverse=True)
+        #return sorted_dict_to_list
+        return sorteddict
+    except AttributeError:
+        pass
 
 def get_margin(auctions):
     new_auction_list = {}
@@ -46,11 +52,21 @@ async def check_logs():
         with open(lmlog, 'r+') as f:
             if os.path.getsize('./logs_lm.txt') > 0:
                 lines = [line.rstrip() for line in f]
-                slist = sort_margins(get_margin(lines))
-                await channel.purge(limit=5)
-                flips10 = slist[:10]
-                tosend = '\n'.join(flips10)
-                await lm_channel.send(tosend)
+                try:
+                    slist = sort_margins(get_margin(lines))
+                    await lm_channel.purge(limit=5)
+                    
+                    embed = discord.Embed(title='Current Top Flips (1M Margin)')
+                    
+                    slistcut = list(slist.items())[:10]
+                    
+                    for i, (margin, aucstr) in enumerate(slistcut):
+                        #aucstr = tup[1]
+                        embed.add_field(name=str(i+1)+'.', value=aucstr, inline=False)
+                    await lm_channel.send(embed=embed)
+                    f.truncate(0)
+                except:
+                    pass
     except FileNotFoundError:
         pass
 

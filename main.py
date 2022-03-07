@@ -30,8 +30,10 @@ lm_prev_results = []
 STARS = [" ✦", "⚚ ", " ✪", "✪"]
 REFORGES = ["Very", "Stiff ", "Lucky ", "Jerry's ", "Dirty ", "Fabled ", "Suspicious ", "Gilded ", "Warped ", "Withered ", "Bulky ", "Stellar ", "Heated ", "Ambered ", "Fruitful ", "Magnetic ", "Fleet ", "Mithraic ", "Auspicious ", "Refined ", "Headstrong ", "Precise ", "Spiritual ", "Moil ", "Blessed ", "Toil ", "Bountiful ", "Candied ", "Submerged ", "Reinforced ", "Cubic ", "Warped ", "Undead ", "Ridiculous ", "Necrotic ", "Spiked ", "Jaded ", "Loving ", "Perfect ", "Renowned ", "Giant ", "Empowered ", "Ancient ", "Sweet ", "Silky ", "Bloody ", "Shaded ", "Gentle ", "Odd ", "Fast ", "Fair ", "Epic ", "Sharp ", "Heroic ", "Spicy ", "Legendary ", "Deadly ", "Fine ", "Grand ", "Hasty ", "Neat ", "Rapid ", "Unreal ", "Awkward ", "Rich ", "Clean ", "Fierce ", "Heavy ", "Light ", "Mythic ", "Pure ", "Smart ", "Titanic ", "Wise ", "Bizarre ", "Itchy ", "Ominous ", "Pleasant ", "Pretty ", "Shiny ", "Simple ", "Strange ", "Vivid ", "Godly ", "Demonic ", "Forceful ", "Hurtful ", "Keen ", "Strong ", "Superior ", "Unpleasant ", "Zealous "]
 
-SWORDFLIPREFORGES = ['Fabled', 'Withered', 'Suspicious']
-ARMORFLIPREFORGES = ['Ancient', 'Renowned', 'Necrotic']
+SWORDFLIPREFORGES_Filter_I = ['Fabled', 'Withered', 'Suspicious']
+ARMORFLIPREFORGES_Filter_I = ['Ancient', 'Renowned', 'Necrotic']
+
+IGNOREARMOURS_Filter_LM = ['Glacite', 'Goblin', 'Crystal', 'Farm', 'Mushroom', 'Angler', 'Pumpkin', 'Cactus', 'Leaflet', 'Lapis', 'Miner\'s', 'Golem', 'Miner', 'Hardened Diamond', 'Fairy', 'Growth', 'Salmon', 'Zombie', 'Speedster', 'Holy', 'Rotten', 'Bouncy', 'Heavy', 'Skeleton Grunt', 'Skeleton Soldier', 'Super Heavy']
 
 # Constant for the lowest priced item you want to be shown to you; feel free to change this
 LOWEST_PRICE = 500
@@ -58,7 +60,7 @@ def fetch(session, page):
             toppage = data['totalPages']
             for auction in data['auctions']:
                 if not auction['claimed'] and auction['bin'] == True and not "Furniture" in auction["item_lore"]: # if the auction isn't a) claimed and is b) BIN
-                    # removes level if it's a pet, also 
+                    # removes level if it's a pet, also
                     name = str(auction['item_name'])
                     tier = str(auction['tier'])
                     index = re.sub("\[[^\]]*\]", "", name + tier)
@@ -89,7 +91,16 @@ def fetch(session, page):
                         results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
                     if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= LARGE_MARGIN_MAXCOST and auction['start']+60000 > now:
                         #if auction['item_name'] not in lm_prev_results:
-                        lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                        if auction['category'] == 'weapon' or auction['category'] == 'armor':
+                            if auction['category'] == 'armor':
+                                ignore = False
+                                for name in IGNOREARMOURS_Filter_LM:
+                                    if name in auction['item_name']:
+                                        ignore = True
+                                if ignore == False:
+                                    lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                            if auction['category'] == 'weapon':
+                                lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
         #print(results)
         #print(lm_results)
         return data

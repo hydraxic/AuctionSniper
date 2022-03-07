@@ -20,13 +20,13 @@ def get_margin(auctions):
     for auc in auctions:
         if auc != '':
             pricei_i = auc.replace('`','')
-            pricei_ii = pricei_i.split('Item price: ')[1]
+            pricei_ii = pricei_i.split('Price: ')[1]
             pricei_iii = pricei_ii.split(' | ')[0]
             pricei_iv = pricei_iii.replace(',','')
             pricei_v = int(pricei_iv)
             priceii_i = auc.replace('`','')
-            priceii_ii = priceii_i.split('Item price: ')[1]
-            priceii_iii = priceii_ii.split(' | Second lowest BIN: ')[1]
+            priceii_ii = priceii_i.split('Price: ')[1]
+            priceii_iii = priceii_ii.split(' | Second Lowest BIN: ')[1]
             priceii_iv = priceii_iii.replace(',','')
             priceii_v = int(priceii_iv)
 
@@ -39,24 +39,32 @@ def get_margin(auctions):
 async def check_logs():
     channel = bot.get_channel(949012493047578624)
     lm_channel = bot.get_channel(949012556100554752)
-    log = './logs.txt'
-    lmlog = './logs_lm.txt'
+    f2channel = bot.get_channel(950467930032848977)
+    log = './fliplogs/logs.txt'
+    lmlog = './fliplogs/logs_f1.txt'
+    f2log = './fliplogs/logs_f2.txt'
     try:
+
+        # part for #auction-sniper-main
+
         with open(log, 'r+') as f:
-            if os.path.getsize('./logs.txt') > 0:
+            if os.path.getsize('./fliplogs/logs.txt') > 0:
                 lines = [line.rstrip() for line in f]
                 for d in lines:
                     if d != '': 
                         await channel.send(d)
                 f.truncate(0)
+
+        # part for #ah-sniper-f1
+
         with open(lmlog, 'r+') as f:
-            if os.path.getsize('./logs_lm.txt') > 0:
+            if os.path.getsize('./fliplogs/logs_f1.txt') > 0:
                 lines = [line.rstrip() for line in f]
                 try:
                     slist = sort_margins(get_margin(lines))
                     await lm_channel.purge(limit=5)
                     
-                    embed = discord.Embed(title='Current Top Flips (1M Margin)')
+                    embed = discord.Embed(title='Current Top Flips (1M Margin) 1st Filter')
                     
                     slistcut = list(slist.items())[:10]
                     
@@ -67,6 +75,24 @@ async def check_logs():
                     f.truncate(0)
                 except:
                     pass
+        
+        # #ah-sniper-f2
+
+        with open(f2log, 'r+') as f:
+            if os.path.getsize(f2log) > 0:
+                lines = [line.rstrip() for line in f]
+                try:
+                    slist = sort_margins(get_margin(lines))
+                    await f2channel.purge(limit=5)
+                    embed = discord.Embed(title='Current Top Flips (1M Margin) 2nd Filter')
+                    slistcut = list(slist.items())[:10]
+                    for i, (margin, aucstr) in enumerate(slistcut):
+                        embed.add_field(name=str(i+1)+'.', value=aucstr, inline=False)
+                    await f2channel.send(embed=embed)
+                    f.truncate(0)
+                except:
+                    pass
+
     except FileNotFoundError:
         pass
 

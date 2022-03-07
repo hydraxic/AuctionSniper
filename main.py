@@ -36,6 +36,30 @@ ARMORFLIPREFORGES_Filter_I = ['Ancient', 'Renowned', 'Necrotic']
 
 IGNOREARMOURS_Filter_LM = ['Glacite', 'Goblin', 'Crystal', 'Farm', 'Mushroom', 'Angler', 'Pumpkin', 'Cactus', 'Leaflet', 'Lapis', 'Miner\'s', 'Golem', 'Miner', 'Hardened Diamond', 'Fairy', 'Growth', 'Salmon', 'Zombie', 'Speedster', 'Holy', 'Rotten', 'Bouncy', 'Heavy', 'Skeleton Grunt', 'Skeleton Soldier', 'Super Heavy']
 
+ignore_reforges_f2 = {
+    #swords
+    'Gentle',
+    'Odd',
+    'Fast',
+    'Fair',
+    'Epic',
+    'Sharp',
+    'Heroic',
+    'Spicy',
+    'Legendary',
+    #bows? maybe idk i see a lot of profitable flips with blacksmith reforges in bow section
+    #armour
+    'Clean',
+    'Fierce',
+    'Heavy',
+    'Light',
+    'Mythic',
+    'Pure',
+    'Smart',
+    'Titanic',
+    'Wise',
+}
+
 # Constant for the lowest priced item you want to be shown to you; feel free to change this
 LOWEST_PRICE = 500
 
@@ -145,15 +169,17 @@ def main():
     if len(results): results = [[entry, prices[entry[3]][1]] for entry in results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
     if len(lm_results): lm_results = [[entry, prices[entry[3]][1]] for entry in lm_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= LARGE_MARGIN_MAXCOST)]
 
+    #for #auction-sniper-main
+
     if len(results): # if there's results to print
 
-        if NOTIFY: 
+        '''if NOTIFY: 
             notification.notify(
                 title = max(results, key=lambda entry:entry[1])[0][1],
                 message = "Lowest BIN: " + f'{max(results, key=lambda entry:entry[1])[0][2]:,}' + "\nSecond Lowest: " + f'{max(results, key=lambda entry:entry[1])[1]:,}',
                 app_icon = None,
                 timeout = 4,
-            )
+            )'''
         
         #df=pd.DataFrame(['/viewauction ' + str(max(results, key=lambda entry:entry[1])[0][0])])
         #df.to_clipboard(index=False,header=False) # copies most valuable auction to clipboard (usually just the only auction cuz very uncommon for there to be multiple
@@ -161,21 +187,28 @@ def main():
         #done = default_timer() - START_TIME
         #if op: winsound.Beep(500, 500) # emits a frequency 500hz, for 500ms
         for result in results:
-            with open('./logs.txt', 'a') as fAp:
-                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item Name: `" + str(result[0][1]) + "` | Item price: `{:,}`".format(result[0][2]) + " | Second lowest BIN: `{:,}`".format(result[1])
+            with open('./fliplogs/logs.txt', 'a') as fAp:
+                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                 fAp.write(toprint)
                 #fAp.close()
                 print(toprint)
         print("\nLooking for auctions...")
     
+    ##ah-sniper-f1 and #ah-sniper-f2
+
     if len(lm_results):
         for result in lm_results:
             print(result)
-            with open('./logs_lm.txt', 'a') as fAp2:
-                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item Name: `" + str(result[0][1]) + "` | Item price: `{:,}`".format(result[0][2]) + " | Second lowest BIN: `{:,}`".format(result[1])
+            with open('./fliplogs/logs_f1.txt', 'a') as fAp2:
+                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                 fAp2.write(toprint)
                 #fAp.close()
                 print(toprint)
+            with open('./fliplogs/logs_f2.txt', 'a') as fAp3:
+                for reforge in ignore_reforges_f2:
+                    if not str(result[0][1]).startswith(reforge):
+                        toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
+                        fAp3.write(toprint)
         global lm_prev_results
         lm_prev_results = lm_results
 

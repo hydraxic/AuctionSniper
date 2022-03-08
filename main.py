@@ -205,12 +205,15 @@ def main():
                 #fAp.close()
                 print(toprint)
             with open('./fliplogs/logs_f2.txt', 'a') as fAp3:
-                istrue = False
+                truechecker = []
                 for reforge in ignore_reforges_f2:
-                    if not str(result[0][1]).startswith(reforge) and istrue == False:
-                        toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
-                        fAp3.write(toprint)
-                        istrue = True
+                    if not str(result[0][1]).startswith(reforge):
+                        truechecker.append(True)
+                    else:
+                        truechecker.append(False)
+                if not False in truechecker:
+                    toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
+                    fAp3.write(toprint)
         global lm_prev_results
         lm_prev_results = lm_results
 

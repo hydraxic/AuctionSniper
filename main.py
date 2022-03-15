@@ -195,7 +195,7 @@ async def get_data_asynchronous():
 
 def main():
     # Resets variables
-    global results, lm_results, prices, START_TIME
+    global results, lm_results, prices, ignore_special_results, prices_ignore_special, START_TIME
     START_TIME = default_timer()
     results = []
     lm_results = []
@@ -243,7 +243,7 @@ def main():
 
     if len(ignore_special_results):
         for result in ignore_special_results:
-            with open('./fliplogs/logs.txt', 'a') as fApSpecial:
+            with open('./fliplogs/logs_s.txt', 'a') as fApSpecial:
                 toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                 fApSpecial.write(toprint)
                 #fAp.close()

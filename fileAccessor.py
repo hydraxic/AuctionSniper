@@ -41,10 +41,12 @@ async def check_logs():
     lm_channel = bot.get_channel(949012556100554752)
     f2channel = bot.get_channel(950467930032848977)
     f3channel = bot.get_channel(951851755015114772)
+    superchannel = bot.get_channel(953404693156089937)
     log = './fliplogs/logs.txt'
     lmlog = './fliplogs/logs_f1.txt'
     f2log = './fliplogs/logs_f2.txt'
     f3log = './fliplogs/logs_f3.txt'
+    logsuper = './fliplogs/logs_s.txt'
     try:
 
         # part for #auction-sniper-main
@@ -109,6 +111,19 @@ async def check_logs():
                     f.truncate(0)
                 except:
                     pass
+
+        # ah-sniper-super
+
+        with open(logsuper, 'r+') as f:
+            try:
+                if os.path.getsize(logsuper) > 0:
+                    lines = [line.rstrip() for line in f]
+                    for d in lines:
+                        if d != '': 
+                            await superchannel.send(d)
+                    f.truncate(0)
+            except:
+                pass
                     
 
     except FileNotFoundError:

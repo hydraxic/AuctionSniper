@@ -40,9 +40,11 @@ async def check_logs():
     channel = bot.get_channel(949012493047578624)
     lm_channel = bot.get_channel(949012556100554752)
     f2channel = bot.get_channel(950467930032848977)
+    f3channel = bot.get_channel(951851755015114772)
     log = './fliplogs/logs.txt'
     lmlog = './fliplogs/logs_f1.txt'
     f2log = './fliplogs/logs_f2.txt'
+    f3log = './fliplogs/logs_f3.txt'
     try:
 
         # part for #auction-sniper-main
@@ -92,6 +94,22 @@ async def check_logs():
                     f.truncate(0)
                 except:
                     pass
+
+        with open(f3log, 'r+') as f:
+            if os.path.getsize(f3log) > 0:
+                lines = [line.rstrip() for line in f]
+                try:
+                    slist = sort_margins(get_margin(lines))
+                    await f3channel.purge(limit=5)
+                    embed = discord.Embed(title='Currently Top Flips (1M Margin) 3rd Filter')
+                    slistcut = list(slist.items())[:10]
+                    for i, (margin, aucstr) in enumerate(slistcut):
+                        embed.add_field(name=str(i+1)+'.', value=aucstr, inline=False)
+                    await f3channel.send(embed=embed)
+                    f.truncate(0)
+                except:
+                    pass
+                    
 
     except FileNotFoundError:
         pass

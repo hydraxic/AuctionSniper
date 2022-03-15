@@ -36,6 +36,17 @@ ARMORFLIPREFORGES_Filter_I = ['Ancient', 'Renowned', 'Necrotic']
 
 IGNOREARMOURS_Filter_LM = ['Glacite', 'Goblin', 'Crystal', 'Farm', 'Mushroom', 'Angler', 'Pumpkin', 'Cactus', 'Leaflet', 'Lapis', 'Miner\'s', 'Golem', 'Miner', 'Hardened Diamond', 'Fairy', 'Growth', 'Salmon', 'Zombie', 'Speedster', 'Holy', 'Rotten', 'Bouncy', 'Heavy', 'Skeleton Grunt', 'Skeleton Soldier', 'Super Heavy']
 
+dungeon_armour_meta_reforge_f3 = {
+    'Goldor\'s': 'Giant',
+    'Necron\'s': 'Ancient',
+    'Storm\'s': 'Necrotic',
+    #'Maxor\'s': ''#useless L
+    'Final Destination': 'Ancient',
+    'Sorrow': 'Jaded',
+    'Shadow Assassin': 'Ancient',
+    #more soon idk
+}
+
 ignore_reforges_f2 = {
     #swords
     'Gentle',
@@ -214,6 +225,11 @@ def main():
                 if not False in truechecker:
                     toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                     fAp3.write(toprint)
+            with open('./fliplogs/logs_f3.txt', 'a') as fAp4:
+                for armour, reforge in dungeon_armour_meta_reforge_f3.items():
+                    if str(result[0][1]).startswith(reforge) and armour in str(result[0][1]):
+                        toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
+                        fAp4.write(toprint)
         global lm_prev_results
         lm_prev_results = lm_results
 

@@ -20,8 +20,10 @@ toppage = resp['totalPages']
 
 results = []
 lm_results = []
+ignore_special_results = []
 
 prices = {}
+prices_ignore_special = {}
 
 #make sure the flips aren't repeated (only for for LM flips cuz yeah)
 
@@ -40,10 +42,11 @@ dungeon_armour_meta_reforge_f3 = {
     'Goldor\'s': 'Giant',
     'Necron\'s': 'Ancient',
     'Storm\'s': 'Necrotic',
-    #'Maxor\'s': ''#useless L
+    'Maxor\'s': 'Ancient', #maxor do be kinda useless tho
     'Final Destination': 'Ancient',
     'Sorrow': 'Jaded',
     'Shadow Assassin': 'Ancient',
+    'Reaper Mask': 'Giant',
     #more soon idk
 }
 
@@ -106,13 +109,26 @@ def fetch(session, page):
                             if reforge in index:
                                 index = index.replace(reforge, "")
                             else:
-                                index = index.replace(reforge, "")'''
+                                index = index.replace(reforge, "")
                         for star in STARS:
                             if star in index:
                                 index = index.replace(star, "")
                             else:
-                                index = index.replace(star, "")
+                                index = index.replace(star, "")'''
                         # if the current item already has a price in the prices map, the price is updated
+                        filtindex = index
+                        for reforge in REFORGES:
+                            if reforge in filtindex:
+                                filtindex = filtindex.replace(reforge, "")
+                            else:
+                                filtindex = filtindex.replace(reforge, "")
+                        for star in STARS:
+                            if star in filtindex:
+                                filtindex = filtindex.replace(star, "")
+                            else:
+                                filtindex = filtindex.replace(star, "")
+
+                        
                         if index in prices:
                             if prices[index][0] > auction['starting_bid']:
                                 prices[index][1] = prices[index][0]
@@ -122,10 +138,24 @@ def fetch(session, page):
                         # otherwise, it's added to the prices map
                         else:
                             prices[index] = [auction['starting_bid'], float("inf")]
-                            
+
+                        if filtindex in prices_ignore_special:
+                            if prices_ignore_special[filtindex][0] > auction['starting_bid']:
+                                prices_ignore_special[filtindex][1] = prices_ignore_special[filtindex][0]
+                                prices_ignore_special[filtindex][0] = auction['starting_bid']
+                            elif prices_ignore_special[filtindex][1] > auction['starting_bid']:
+                                prices_ignore_special[filtindex][1] = auction['starting_bid']
+                        # otherwise, it's added to the prices map
+                        else:
+                            prices_ignore_special[filtindex] = [auction['starting_bid'], float("inf")]
+                        
+                        #print(prices_ignore_special[filtindex])
+
                         # if the auction fits in some parameters
                         if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
-                            results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                            results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
+                        if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
+                            ignore_special_results.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])
                         if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= LARGE_MARGIN_MAXCOST and auction['start']+60000 > now:
                             #if auction['item_name'] not in lm_prev_results:
                             if auction['category'] == 'weapon' or auction['category'] == 'armor':
@@ -169,7 +199,9 @@ def main():
     START_TIME = default_timer()
     results = []
     lm_results = []
+    ignore_special_results = []
     prices = {}
+    prices_ignore_special = {}
     
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -179,6 +211,8 @@ def main():
     # Makes sure all the results are still up to date
     if len(results): results = [[entry, prices[entry[3]][1]] for entry in results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
     if len(lm_results): lm_results = [[entry, prices[entry[3]][1]] for entry in lm_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= LARGE_MARGIN_MAXCOST)]
+    if len(ignore_special_results): ignore_special_results = [[entry, prices_ignore_special[entry[3]][1]] for entry in ignore_special_results if (entry[2] > LOWEST_PRICE and prices_ignore_special[entry[3]][1] != float('inf') and prices_ignore_special[entry[3]][0] == entry[2] and prices_ignore_special[entry[3]][0]/prices_ignore_special[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
+
 
     #for #auction-sniper-main
 
@@ -202,19 +236,29 @@ def main():
                 toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                 fAp.write(toprint)
                 #fAp.close()
-                print(toprint)
+                #print(toprint)
         print("\nLooking for auctions...")
     
+    #superfilter
+
+    if len(ignore_special_results):
+        for result in ignore_special_results:
+            with open('./fliplogs/logs.txt', 'a') as fApSpecial:
+                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
+                fApSpecial.write(toprint)
+                #fAp.close()
+                print(toprint)
+
     ##ah-sniper-f1 and #ah-sniper-f2
 
     if len(lm_results):
         for result in lm_results:
-            print(result)
+            #print(result)
             with open('./fliplogs/logs_f1.txt', 'a') as fAp2:
                 toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                 fAp2.write(toprint)
                 #fAp.close()
-                print(toprint)
+                #print(toprint)
             with open('./fliplogs/logs_f2.txt', 'a') as fAp3:
                 truechecker = []
                 for reforge in ignore_reforges_f2:

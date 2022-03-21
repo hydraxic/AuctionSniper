@@ -37,27 +37,33 @@ def get_margin(auctions):
     if new_auction_list != {}: return new_auction_list
 
 async def check_logs():
-    channel = bot.get_channel(949012493047578624)
+    channel = bot.get_channel(949012493047578624) #unused xd
     lm_channel = bot.get_channel(949012556100554752)
     f2channel = bot.get_channel(950467930032848977)
+    f2_2channel = bot.get_channel(955488324431253584)
     f3channel = bot.get_channel(951851755015114772)
     superchannel = bot.get_channel(953404693156089937)
-    log = './fliplogs/logs.txt'
+    log = './fliplogs/logs.txt' #unused xd
     lmlog = './fliplogs/logs_f1.txt'
     f2log = './fliplogs/logs_f2.txt'
+    f2_2log = './fliplogs/logs_f2_2.txt'
     f3log = './fliplogs/logs_f3.txt'
     logsuper = './fliplogs/logs_s.txt'
     try:
 
         # part for #auction-sniper-main
 
+        '''
+        
+        #main sniper gone cuz bad #4
+        
         with open(log, 'r+') as f:
             if os.path.getsize('./fliplogs/logs.txt') > 0:
                 lines = [line.rstrip() for line in f]
                 for d in lines:
                     if d != '': 
                         await channel.send(d)
-                f.truncate(0)
+                f.truncate(0)'''
 
         # part for #ah-sniper-f1
 
@@ -93,6 +99,23 @@ async def check_logs():
                     for i, (margin, aucstr) in enumerate(slistcut):
                         embed.add_field(name=str(i+1)+'.', value=aucstr, inline=False)
                     await f2channel.send(embed=embed)
+                    f.truncate(0)
+                except:
+                    pass
+        
+        #ah-sniper-f2-v2
+
+        with open(f2_2log, 'r+') as f:
+            if os.path.getsize(f2_2log) > 0:
+                lines = [line.rstrip() for line in f]
+                try:
+                    slist = sort_margins(get_margin(lines))
+                    await f2_2channel.purge(limit=5)
+                    embed = discord.Embed(title='Current Top Flips (1M Margin) 2nd Filter v2')
+                    slistcut = list(slist.items())[:10]
+                    for i, (margin, aucstr) in enumerate(slistcut):
+                        embed.add_field(name=str(i+1)+'.', value=aucstr, inline=False)
+                    await f2_2channel.send(embed=embed)
                     f.truncate(0)
                 except:
                     pass

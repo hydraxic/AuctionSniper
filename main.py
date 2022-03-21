@@ -152,8 +152,11 @@ def fetch(session, page):
                         #print(prices_ignore_special[filtindex])
 
                         # if the auction fits in some parameters
-                        if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
-                            results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
+                        
+                        #yeah so main sniper gone cuz bad
+
+                        #if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
+                        #    results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
                         if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
                             ignore_special_results.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])
                         if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= LARGE_MARGIN_MAXCOST and auction['start']+60000 > now:
@@ -209,22 +212,29 @@ def main():
     loop.run_until_complete(future)
 
     # Makes sure all the results are still up to date
-    if len(results): results = [[entry, prices[entry[3]][1]] for entry in results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
+
+    #main sniper gone cuz bad #2
+
+    #if len(results): results = [[entry, prices[entry[3]][1]] for entry in results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
     if len(lm_results): lm_results = [[entry, prices[entry[3]][1]] for entry in lm_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= LARGE_MARGIN_MAXCOST)]
     if len(ignore_special_results): ignore_special_results = [[entry, prices_ignore_special[entry[3]][1]] for entry in ignore_special_results if (entry[2] > LOWEST_PRICE and prices_ignore_special[entry[3]][1] != float('inf') and prices_ignore_special[entry[3]][0] == entry[2] and prices_ignore_special[entry[3]][0]/prices_ignore_special[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
 
 
     #for #auction-sniper-main
 
+    '''
+
+    #main sniper gone cuz bad #3
+
     if len(results): # if there's results to print
 
-        '''if NOTIFY: 
+        if NOTIFY: 
             notification.notify(
                 title = max(results, key=lambda entry:entry[1])[0][1],
                 message = "Lowest BIN: " + f'{max(results, key=lambda entry:entry[1])[0][2]:,}' + "\nSecond Lowest: " + f'{max(results, key=lambda entry:entry[1])[1]:,}',
                 app_icon = None,
                 timeout = 4,
-            )'''
+            )
         
         #df=pd.DataFrame(['/viewauction ' + str(max(results, key=lambda entry:entry[1])[0][0])])
         #df.to_clipboard(index=False,header=False) # copies most valuable auction to clipboard (usually just the only auction cuz very uncommon for there to be multiple
@@ -238,6 +248,8 @@ def main():
                 #fAp.close()
                 #print(toprint)
         print("\nLooking for auctions...")
+
+        '''
     
     #superfilter
 
@@ -269,6 +281,16 @@ def main():
                 if not False in truechecker:
                     toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                     fAp3.write(toprint)
+            with open('./fliplogs/logs_f2_2.txt', 'a') as fAp3_2:
+                truechecker = []
+                for reforge in ignore_reforges_f2:
+                    if not str(result[0][1]).startswith(reforge) and ('✪' not in str(result[0][1]) or str(result[0][1]).count('✪') == 5):
+                        truechecker.append(True)
+                    else:
+                        truechecker.append(False)
+                if not False in truechecker:
+                    toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
+                    fAp3_2.write(toprint)
             with open('./fliplogs/logs_f3.txt', 'a') as fAp4:
                 for armour, reforge in dungeon_armour_meta_reforge_f3.items():
                     if str(result[0][1]).startswith(reforge) and armour in str(result[0][1]):

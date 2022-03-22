@@ -40,13 +40,15 @@ IGNOREARMOURS_Filter_LM = ['Glacite', 'Goblin', 'Crystal', 'Farm', 'Mushroom', '
 
 dungeon_armour_meta_reforge_f3 = {
     'Goldor\'s': 'Giant',
-    'Necron\'s': 'Ancient',
+    'Necron\'s': 'Ancient', #necron deez nuts
     'Storm\'s': 'Necrotic',
-    'Maxor\'s': 'Ancient', #maxor do be kinda useless tho
+    'Maxor\'s': 'Ancient',
     'Final Destination': 'Ancient',
     'Sorrow': 'Jaded',
     'Shadow Assassin': 'Ancient',
     'Reaper Mask': 'Giant',
+    'Necromancer Lord': 'Necrotic',
+
     #more soon idk
 }
 

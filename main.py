@@ -284,13 +284,13 @@ def main():
                     toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                     fAp3.write(toprint)
             with open('./fliplogs/logs_f2_2.txt', 'a') as fAp3_2:
-                truechecker = []
+                truechecker2 = []
                 for reforge in ignore_reforges_f2:
                     if not str(result[0][1]).startswith(reforge) and ('✪' not in str(result[0][1]) or str(result[0][1]).count('✪') == 5):
-                        truechecker.append(True)
+                        truechecker2.append(True)
                     else:
-                        truechecker.append(False)
-                if not False in truechecker:
+                        truechecker2.append(False)
+                if not False in truechecker2:
                     toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                     fAp3_2.write(toprint)
             with open('./fliplogs/logs_f3.txt', 'a') as fAp4:

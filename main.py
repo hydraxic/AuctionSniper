@@ -38,6 +38,7 @@ ARMORFLIPREFORGES_Filter_I = ['Ancient', 'Renowned', 'Necrotic']
 
 IGNOREARMOURS_Filter_LM = ['Glacite', 'Goblin', 'Crystal', 'Farm', 'Mushroom', 'Angler', 'Pumpkin', 'Cactus', 'Leaflet', 'Lapis', 'Miner\'s', 'Golem', 'Miner', 'Hardened Diamond', 'Fairy', 'Growth', 'Salmon', 'Zombie', 'Speedster', 'Holy', 'Rotten', 'Bouncy', 'Heavy', 'Skeleton Grunt', 'Skeleton Soldier', 'Super Heavy']
 
+'''
 armour_weapon_meta_reforge_f3 = {
     #armour
     'Goldor\'s': 'Giant',
@@ -65,6 +66,20 @@ armour_weapon_meta_reforge_f3 = {
     'Giant\'s Sword': 'Withered',
     
     #for any average weapon, fabled or withered, idk try adding it soon
+}'''
+
+awmrf3r_witheredfabled_prelist = ['Flower of Truth', 'Livid Dagger', 'Shadow Fury', 'Emerald Blade', 'Giant\'s Sword']
+awmrf3r_witheredfabled_prelist_2 = ['Livid Dagger', 'Flower of Truth', 'Shadow Fury', 'Emerald Blade', 'Giant\'s Sword']
+
+armour_weapon_meta_reforge_f3_remake = {
+    #reforge, items
+    'Withered': awmrf3r_witheredfabled_prelist,
+    'Fabled': awmrf3r_witheredfabled_prelist_2,
+    'Giant': ['Goldor\'s', 'Reaper Mask'],
+    'Ancient': ['Necron\'s', 'Maxor\'s', 'Final Destination', 'Shadow Assassin'],
+    'Necrotic': ['Storm\'s', 'Necromancer Lord', 'Wither Goggles'],
+    'Jaded': ['Sorrow'],
+    'Spiritual': ['Juju Shortbow'],
 }
 
 ignore_reforges_f2 = {
@@ -309,8 +324,9 @@ def main():
                     toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                     fAp3_2.write(toprint)
             with open('./fliplogs/logs_f3.txt', 'a') as fAp4:
-                for AorW, reforge in armour_weapon_meta_reforge_f3.items():
-                    if str(result[0][1]).startswith(reforge) and AorW in str(result[0][1]):
+                for reforge, AorWs in armour_weapon_meta_reforge_f3_remake.items():
+                    print(reforge, AorWs, str(result[0][1]))
+                    if reforge in str(result[0][1]) and any(substring in str(result[0][1]) for substring in AorWs):
                         toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                         fAp4.write(toprint)
         global lm_prev_results

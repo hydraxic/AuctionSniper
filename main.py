@@ -38,7 +38,8 @@ ARMORFLIPREFORGES_Filter_I = ['Ancient', 'Renowned', 'Necrotic']
 
 IGNOREARMOURS_Filter_LM = ['Glacite', 'Goblin', 'Crystal', 'Farm', 'Mushroom', 'Angler', 'Pumpkin', 'Cactus', 'Leaflet', 'Lapis', 'Miner\'s', 'Golem', 'Miner', 'Hardened Diamond', 'Fairy', 'Growth', 'Salmon', 'Zombie', 'Speedster', 'Holy', 'Rotten', 'Bouncy', 'Heavy', 'Skeleton Grunt', 'Skeleton Soldier', 'Super Heavy']
 
-dungeon_armour_meta_reforge_f3 = {
+armour_weapon_meta_reforge_f3 = {
+    #armour
     'Goldor\'s': 'Giant',
     'Necron\'s': 'Ancient', #necron deez nuts
     'Storm\'s': 'Necrotic',
@@ -48,8 +49,22 @@ dungeon_armour_meta_reforge_f3 = {
     'Shadow Assassin': 'Ancient',
     'Reaper Mask': 'Giant',
     'Necromancer Lord': 'Necrotic',
+    'Wither Goggles': 'Necrotic',
 
-    #more soon idk
+    #weapons
+    'Juju Shortbow': 'Spiritual',
+    'Flower of Truth': 'Fabled', # Fabled or withered for both them
+    'Flower of Truth': 'Withered',
+    'Livid Dagger': 'Fabled',
+    'Livid Dagger': 'Withered',
+    'Shadow Fury': 'Fabled',
+    'Shadow Fury': 'Withered',
+    'Emerald Blade': 'Fabled',
+    'Emerald Blade': 'Withered',
+    'Giant\'s Sword': 'Fabled',
+    'Giant\'s Sword': 'Withered',
+    
+    #for any average weapon, fabled or withered, idk try adding it soon
 }
 
 ignore_reforges_f2 = {
@@ -294,8 +309,8 @@ def main():
                     toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                     fAp3_2.write(toprint)
             with open('./fliplogs/logs_f3.txt', 'a') as fAp4:
-                for armour, reforge in dungeon_armour_meta_reforge_f3.items():
-                    if str(result[0][1]).startswith(reforge) and armour in str(result[0][1]):
+                for AorW, reforge in armour_weapon_meta_reforge_f3.items():
+                    if str(result[0][1]).startswith(reforge) and AorW in str(result[0][1]):
                         toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                         fAp4.write(toprint)
         global lm_prev_results

@@ -126,85 +126,83 @@ def fetch(session, page):
     with session.get(base_url + page) as response:
         # puts response in a dict
         try:
-            response.raise_for_status()
-            if response.status_code == 200:
-                data = response.json()
+            data = response.json()
+            toppage = data['totalPages']
+            if data['success']:
                 toppage = data['totalPages']
-                if data['success']:
-                    toppage = data['totalPages']
-                    for auction in data['auctions']:
-                        if not auction['claimed'] and auction['bin'] == True and not "Furniture" in auction["item_lore"]: # if the auction isn't a) claimed and is b) BIN
-                            # removes level if it's a pet, also
-                            name = str(auction['item_name'])
-                            tier = str(auction['tier'])
-                            index = re.sub("\[[^\]]*\]", "", name + tier)
-                            # removes reforges and other yucky characters
-                            '''for reforge in REFORGES:
-                                if reforge in index:
-                                    index = index.replace(reforge, "")
-                                else:
-                                    index = index.replace(reforge, "")
-                            for star in STARS:
-                                if star in index:
-                                    index = index.replace(star, "")
-                                else:
-                                    index = index.replace(star, "")'''
-                            # if the current item already has a price in the prices map, the price is updated
-                            filtindex = index
-                            for reforge in REFORGES:
-                                if reforge in filtindex:
-                                    filtindex = filtindex.replace(reforge, "")
-                                else:
-                                    filtindex = filtindex.replace(reforge, "")
-                            for star in STARS:
-                                if star in filtindex:
-                                    filtindex = filtindex.replace(star, "")
-                                else:
-                                    filtindex = filtindex.replace(star, "")
-
-                            
-                            if index in prices:
-                                if prices[index][0] > auction['starting_bid']:
-                                    prices[index][1] = prices[index][0]
-                                    prices[index][0] = auction['starting_bid']
-                                elif prices[index][1] > auction['starting_bid']:
-                                    prices[index][1] = auction['starting_bid']
-                            # otherwise, it's added to the prices map
+                for auction in data['auctions']:
+                    if not auction['claimed'] and auction['bin'] == True and not "Furniture" in auction["item_lore"]: # if the auction isn't a) claimed and is b) BIN
+                        # removes level if it's a pet, also
+                        name = str(auction['item_name'])
+                        tier = str(auction['tier'])
+                        index = re.sub("\[[^\]]*\]", "", name + tier)
+                        # removes reforges and other yucky characters
+                        '''for reforge in REFORGES:
+                            if reforge in index:
+                                index = index.replace(reforge, "")
                             else:
-                                prices[index] = [auction['starting_bid'], float("inf")]
-
-                            if filtindex in prices_ignore_special:
-                                if prices_ignore_special[filtindex][0] > auction['starting_bid']:
-                                    prices_ignore_special[filtindex][1] = prices_ignore_special[filtindex][0]
-                                    prices_ignore_special[filtindex][0] = auction['starting_bid']
-                                elif prices_ignore_special[filtindex][1] > auction['starting_bid']:
-                                    prices_ignore_special[filtindex][1] = auction['starting_bid']
-                            # otherwise, it's added to the prices map
+                                index = index.replace(reforge, "")
+                        for star in STARS:
+                            if star in index:
+                                index = index.replace(star, "")
                             else:
-                                prices_ignore_special[filtindex] = [auction['starting_bid'], float("inf")]
-                            
-                            #print(prices_ignore_special[filtindex])
+                                index = index.replace(star, "")'''
+                        # if the current item already has a price in the prices map, the price is updated
+                        filtindex = index
+                        for reforge in REFORGES:
+                            if reforge in filtindex:
+                                filtindex = filtindex.replace(reforge, "")
+                            else:
+                                filtindex = filtindex.replace(reforge, "")
+                        for star in STARS:
+                            if star in filtindex:
+                                filtindex = filtindex.replace(star, "")
+                            else:
+                                filtindex = filtindex.replace(star, "")
 
-                            # if the auction fits in some parameters
-                            
-                            #yeah so main sniper gone cuz bad
+                        
+                        if index in prices:
+                            if prices[index][0] > auction['starting_bid']:
+                                prices[index][1] = prices[index][0]
+                                prices[index][0] = auction['starting_bid']
+                            elif prices[index][1] > auction['starting_bid']:
+                                prices[index][1] = auction['starting_bid']
+                        # otherwise, it's added to the prices map
+                        else:
+                            prices[index] = [auction['starting_bid'], float("inf")]
 
-                            #if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
-                            #    results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
-                            if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
-                                ignore_special_results.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])
-                            if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= LARGE_MARGIN_MAXCOST and auction['start']+60000 > now:
-                                #if auction['item_name'] not in lm_prev_results:
-                                if auction['category'] == 'weapon' or auction['category'] == 'armor':
-                                    if auction['category'] == 'armor':
-                                        ignore = False
-                                        for name in IGNOREARMOURS_Filter_LM:
-                                            if name in auction['item_name']:
-                                                ignore = True
-                                        if ignore == False:
-                                            lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
-                                    if auction['category'] == 'weapon':
+                        if filtindex in prices_ignore_special:
+                            if prices_ignore_special[filtindex][0] > auction['starting_bid']:
+                                prices_ignore_special[filtindex][1] = prices_ignore_special[filtindex][0]
+                                prices_ignore_special[filtindex][0] = auction['starting_bid']
+                            elif prices_ignore_special[filtindex][1] > auction['starting_bid']:
+                                prices_ignore_special[filtindex][1] = auction['starting_bid']
+                        # otherwise, it's added to the prices map
+                        else:
+                            prices_ignore_special[filtindex] = [auction['starting_bid'], float("inf")]
+                        
+                        #print(prices_ignore_special[filtindex])
+
+                        # if the auction fits in some parameters
+                        
+                        #yeah so main sniper gone cuz bad
+
+                        #if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
+                        #    results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
+                        if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
+                            ignore_special_results.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])
+                        if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= LARGE_MARGIN_MAXCOST and auction['start']+60000 > now:
+                            #if auction['item_name'] not in lm_prev_results:
+                            if auction['category'] == 'weapon' or auction['category'] == 'armor':
+                                if auction['category'] == 'armor':
+                                    ignore = False
+                                    for name in IGNOREARMOURS_Filter_LM:
+                                        if name in auction['item_name']:
+                                            ignore = True
+                                    if ignore == False:
                                         lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                                if auction['category'] == 'weapon':
+                                    lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
             #print(results)
             #print(lm_results)
             return data
@@ -343,10 +341,7 @@ def dostuff():
     if time.time()*1000 > now + 60000:
         prevnow = now
         now = float('inf')
-        c = requests.get("https://api.hypixel.net/skyblock/auctions?page=0")
-        c.raise_for_status()
-        if c.status_code == 200:
-            c.json()
+        c = requests.get("https://api.hypixel.net/skyblock/auctions?page=0").json()
         if c:
             try:
                 if c['lastUpdated'] != prevnow:
@@ -355,8 +350,8 @@ def dostuff():
                     main()
                 else:
                     now = prevnow
-            except KeyError:
-                print('KeyError: lastUpdated')
+            except:
+                print('error or smth')
     time.sleep(0.25)
 
 while True:

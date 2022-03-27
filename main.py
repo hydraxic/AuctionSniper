@@ -126,7 +126,9 @@ def fetch(session, page):
     with session.get(base_url + page) as response:
         # puts response in a dict
         try:
-            data = response.json()
+            response.raise_for_status()
+            if response.status_code != 204:
+                data = response.json()
             toppage = data['totalPages']
             if data['success']:
                 toppage = data['totalPages']

@@ -352,6 +352,7 @@ def dostuff():
                     now = prevnow
         except:
             print('uh oh error')
+            pass
     time.sleep(0.25)
 
 while True:

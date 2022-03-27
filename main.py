@@ -206,8 +206,9 @@ def fetch(session, page):
             #print(results)
             #print(lm_results)
             return data
-        except JSONDecodeError:
-            pass
+        except:
+            print('jsondecodeerror probably i hate this')
+            return
 
 async def get_data_asynchronous():
     # puts all the page strings
@@ -342,7 +343,8 @@ def dostuff():
         prevnow = now
         now = float('inf')
         try:
-            c = requests.get("https://api.hypixel.net/skyblock/auctions?page=0").json()
+            c = requests.get("https://api.hypixel.net/skyblock/auctions?page=0")
+            c = c.json()
             if c:
                 if c['lastUpdated'] != prevnow:
                     now = c['lastUpdated']
@@ -350,9 +352,8 @@ def dostuff():
                     main()
                 else:
                     now = prevnow
-        except:
-            print('uh oh error')
-            pass
+        except Exception as e:
+            print('uh oh error ' + str(e))
     time.sleep(0.25)
 
 while True:

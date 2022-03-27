@@ -343,8 +343,7 @@ def dostuff():
         prevnow = now
         now = float('inf')
         try:
-            c = requests.get("https://api.hypixel.net/skyblock/auctions?page=0")
-            c = c.json()
+            c = requests.get("https://api.hypixel.net/skyblock/auctions?page=0").json()
             if c:
                 if c['lastUpdated'] != prevnow:
                     now = c['lastUpdated']
@@ -354,6 +353,7 @@ def dostuff():
                     now = prevnow
         except Exception as e:
             print('uh oh error ' + str(e))
+            pass
     time.sleep(0.25)
 
 while True:

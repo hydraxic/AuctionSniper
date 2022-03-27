@@ -127,84 +127,84 @@ def fetch(session, page):
         # puts response in a dict
         try:
             response.raise_for_status()
-            if response.status_code != 204:
+            if response.status_code == 200:
                 data = response.json()
-            toppage = data['totalPages']
-            if data['success']:
                 toppage = data['totalPages']
-                for auction in data['auctions']:
-                    if not auction['claimed'] and auction['bin'] == True and not "Furniture" in auction["item_lore"]: # if the auction isn't a) claimed and is b) BIN
-                        # removes level if it's a pet, also
-                        name = str(auction['item_name'])
-                        tier = str(auction['tier'])
-                        index = re.sub("\[[^\]]*\]", "", name + tier)
-                        # removes reforges and other yucky characters
-                        '''for reforge in REFORGES:
-                            if reforge in index:
-                                index = index.replace(reforge, "")
-                            else:
-                                index = index.replace(reforge, "")
-                        for star in STARS:
-                            if star in index:
-                                index = index.replace(star, "")
-                            else:
-                                index = index.replace(star, "")'''
-                        # if the current item already has a price in the prices map, the price is updated
-                        filtindex = index
-                        for reforge in REFORGES:
-                            if reforge in filtindex:
-                                filtindex = filtindex.replace(reforge, "")
-                            else:
-                                filtindex = filtindex.replace(reforge, "")
-                        for star in STARS:
-                            if star in filtindex:
-                                filtindex = filtindex.replace(star, "")
-                            else:
-                                filtindex = filtindex.replace(star, "")
+                if data['success']:
+                    toppage = data['totalPages']
+                    for auction in data['auctions']:
+                        if not auction['claimed'] and auction['bin'] == True and not "Furniture" in auction["item_lore"]: # if the auction isn't a) claimed and is b) BIN
+                            # removes level if it's a pet, also
+                            name = str(auction['item_name'])
+                            tier = str(auction['tier'])
+                            index = re.sub("\[[^\]]*\]", "", name + tier)
+                            # removes reforges and other yucky characters
+                            '''for reforge in REFORGES:
+                                if reforge in index:
+                                    index = index.replace(reforge, "")
+                                else:
+                                    index = index.replace(reforge, "")
+                            for star in STARS:
+                                if star in index:
+                                    index = index.replace(star, "")
+                                else:
+                                    index = index.replace(star, "")'''
+                            # if the current item already has a price in the prices map, the price is updated
+                            filtindex = index
+                            for reforge in REFORGES:
+                                if reforge in filtindex:
+                                    filtindex = filtindex.replace(reforge, "")
+                                else:
+                                    filtindex = filtindex.replace(reforge, "")
+                            for star in STARS:
+                                if star in filtindex:
+                                    filtindex = filtindex.replace(star, "")
+                                else:
+                                    filtindex = filtindex.replace(star, "")
 
-                        
-                        if index in prices:
-                            if prices[index][0] > auction['starting_bid']:
-                                prices[index][1] = prices[index][0]
-                                prices[index][0] = auction['starting_bid']
-                            elif prices[index][1] > auction['starting_bid']:
-                                prices[index][1] = auction['starting_bid']
-                        # otherwise, it's added to the prices map
-                        else:
-                            prices[index] = [auction['starting_bid'], float("inf")]
+                            
+                            if index in prices:
+                                if prices[index][0] > auction['starting_bid']:
+                                    prices[index][1] = prices[index][0]
+                                    prices[index][0] = auction['starting_bid']
+                                elif prices[index][1] > auction['starting_bid']:
+                                    prices[index][1] = auction['starting_bid']
+                            # otherwise, it's added to the prices map
+                            else:
+                                prices[index] = [auction['starting_bid'], float("inf")]
 
-                        if filtindex in prices_ignore_special:
-                            if prices_ignore_special[filtindex][0] > auction['starting_bid']:
-                                prices_ignore_special[filtindex][1] = prices_ignore_special[filtindex][0]
-                                prices_ignore_special[filtindex][0] = auction['starting_bid']
-                            elif prices_ignore_special[filtindex][1] > auction['starting_bid']:
-                                prices_ignore_special[filtindex][1] = auction['starting_bid']
-                        # otherwise, it's added to the prices map
-                        else:
-                            prices_ignore_special[filtindex] = [auction['starting_bid'], float("inf")]
-                        
-                        #print(prices_ignore_special[filtindex])
+                            if filtindex in prices_ignore_special:
+                                if prices_ignore_special[filtindex][0] > auction['starting_bid']:
+                                    prices_ignore_special[filtindex][1] = prices_ignore_special[filtindex][0]
+                                    prices_ignore_special[filtindex][0] = auction['starting_bid']
+                                elif prices_ignore_special[filtindex][1] > auction['starting_bid']:
+                                    prices_ignore_special[filtindex][1] = auction['starting_bid']
+                            # otherwise, it's added to the prices map
+                            else:
+                                prices_ignore_special[filtindex] = [auction['starting_bid'], float("inf")]
+                            
+                            #print(prices_ignore_special[filtindex])
 
-                        # if the auction fits in some parameters
-                        
-                        #yeah so main sniper gone cuz bad
+                            # if the auction fits in some parameters
+                            
+                            #yeah so main sniper gone cuz bad
 
-                        #if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
-                        #    results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
-                        if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
-                            ignore_special_results.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])
-                        if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= LARGE_MARGIN_MAXCOST and auction['start']+60000 > now:
-                            #if auction['item_name'] not in lm_prev_results:
-                            if auction['category'] == 'weapon' or auction['category'] == 'armor':
-                                if auction['category'] == 'armor':
-                                    ignore = False
-                                    for name in IGNOREARMOURS_Filter_LM:
-                                        if name in auction['item_name']:
-                                            ignore = True
-                                    if ignore == False:
+                            #if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
+                            #    results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
+                            if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
+                                ignore_special_results.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])
+                            if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= LARGE_MARGIN_MAXCOST and auction['start']+60000 > now:
+                                #if auction['item_name'] not in lm_prev_results:
+                                if auction['category'] == 'weapon' or auction['category'] == 'armor':
+                                    if auction['category'] == 'armor':
+                                        ignore = False
+                                        for name in IGNOREARMOURS_Filter_LM:
+                                            if name in auction['item_name']:
+                                                ignore = True
+                                        if ignore == False:
+                                            lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                                    if auction['category'] == 'weapon':
                                         lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
-                                if auction['category'] == 'weapon':
-                                    lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
             #print(results)
             #print(lm_results)
             return data
@@ -327,7 +327,6 @@ def main():
                     fAp3_2.write(toprint)
             with open('./fliplogs/logs_f3.txt', 'a') as fAp4:
                 for reforge, AorWs in armour_weapon_meta_reforge_f3_remake.items():
-                    print(reforge, AorWs, str(result[0][1]))
                     if reforge in str(result[0][1]) and any(substring in str(result[0][1]) for substring in AorWs):
                         toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                         fAp4.write(toprint)
@@ -344,7 +343,10 @@ def dostuff():
     if time.time()*1000 > now + 60000:
         prevnow = now
         now = float('inf')
-        c = requests.get("https://api.hypixel.net/skyblock/auctions?page=0").json()
+        c = requests.get("https://api.hypixel.net/skyblock/auctions?page=0")
+        c.raise_for_status()
+        if c.status_code == 200:
+            c.json()
         if c:
             try:
                 if c['lastUpdated'] != prevnow:

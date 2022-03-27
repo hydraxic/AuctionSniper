@@ -341,17 +341,17 @@ def dostuff():
     if time.time()*1000 > now + 60000:
         prevnow = now
         now = float('inf')
-        c = requests.get("https://api.hypixel.net/skyblock/auctions?page=0").json()
-        if c:
-            try:
+        try:
+            c = requests.get("https://api.hypixel.net/skyblock/auctions?page=0").json()
+            if c:
                 if c['lastUpdated'] != prevnow:
                     now = c['lastUpdated']
                     toppage = c['totalPages']
                     main()
                 else:
                     now = prevnow
-            except:
-                print('error or smth')
+        except:
+            print('uh oh error')
     time.sleep(0.25)
 
 while True:

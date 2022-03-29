@@ -20,6 +20,7 @@ toppage = resp['totalPages']
 
 results = []
 lm_results = []
+f3_results = []
 ignore_special_results = []
 
 prices = {}
@@ -68,13 +69,13 @@ armour_weapon_meta_reforge_f3 = {
     #for any average weapon, fabled or withered, idk try adding it soon
 }'''
 
-awmrf3r_witheredfabled_prelist = ['Flower of Truth', 'Livid Dagger', 'Shadow Fury', 'Emerald Blade', 'Giant\'s Sword']
-awmrf3r_witheredfabled_prelist_2 = ['Livid Dagger', 'Flower of Truth', 'Shadow Fury', 'Emerald Blade', 'Giant\'s Sword']
+awmrf3r_withered_prelist = ['Flower of Truth', 'Livid Dagger', 'Shadow Fury', 'Emerald Blade', 'Giant\'s Sword']
+awmrf3r_fabled_prelist = ['Flower of Truth', 'Livid Dagger', 'Shadow Fury', 'Emerald Blade', 'Giant\'s Sword', 'Voidedge Katana']
 
 armour_weapon_meta_reforge_f3_remake = {
     #reforge, items
-    'Withered': awmrf3r_witheredfabled_prelist,
-    'Fabled': awmrf3r_witheredfabled_prelist_2,
+    'Withered': awmrf3r_withered_prelist,
+    'Fabled': awmrf3r_fabled_prelist,
     'Giant': ['Goldor\'s', 'Reaper Mask'],
     'Ancient': ['Necron\'s', 'Maxor\'s', 'Final Destination', 'Shadow Assassin'],
     'Necrotic': ['Storm\'s', 'Necromancer Lord', 'Wither Goggles'],
@@ -116,7 +117,8 @@ NOTIFY = False
 LOWEST_PERCENT_MARGIN = 1/2
 LARGE_MARGIN_P_M = 0.9
 LARGE_MARGIN = 1000000 # flips that are more than a mil profit
-LARGE_MARGIN_MAXCOST = 50000000
+LARGE_MARGIN_MAXCOST = 50000000 #50m
+F3_MAXCOST = 200000000 #200m
 
 START_TIME = default_timer()
 
@@ -190,8 +192,9 @@ def fetch(session, page):
                         #if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
                         #    results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
                         if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
-                            ignore_special_results.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])
-                        if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= LARGE_MARGIN_MAXCOST and auction['start']+60000 > now:
+                            ignore_special_results.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])                                                       # vv since f3_maxcost is larger than large_margin_maxcost, i can check to see if large_margin_maxcost within f3_maxcost
+                        if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= F3_MAXCOST and auction['start']+60000 > now:
+                            
                             #if auction['item_name'] not in lm_prev_results:
                             if auction['category'] == 'weapon' or auction['category'] == 'armor':
                                 if auction['category'] == 'armor':

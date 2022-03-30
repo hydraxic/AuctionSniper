@@ -158,4 +158,4 @@ async def start_check(ctx):
         await check_logs()
         time.sleep(10)
 
-bot.run('OTQxMDMzMjUxMjE5MzIwODky.YgQDgg.6iNzsLYDiAAH7d4Vp8RUCrRbahU')
+bot.run('OTQxMDMzMjUxMjE5MzIwODky.YgQDgg.zjB-77r1NdVDVNalqHu-O2q9Oa4')

@@ -70,7 +70,7 @@ armour_weapon_meta_reforge_f3 = {
 }'''
 
 awmrf3r_withered_prelist = ['Flower of Truth', 'Livid Dagger', 'Shadow Fury', 'Emerald Blade', 'Giant\'s Sword']
-awmrf3r_fabled_prelist = ['Flower of Truth', 'Livid Dagger', 'Shadow Fury', 'Emerald Blade', 'Giant\'s Sword', 'Voidedge Katana']
+awmrf3r_fabled_prelist = ['Flower of Truth', 'Livid Dagger', 'Shadow Fury', 'Emerald Blade', 'Giant\'s Sword', 'Voidedge Katana', 'Reaper Falchion']
 
 armour_weapon_meta_reforge_f3_remake = {
     #reforge, items
@@ -194,18 +194,30 @@ def fetch(session, page):
                         if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
                             ignore_special_results.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])                                                       # vv since f3_maxcost is larger than large_margin_maxcost, i can check to see if large_margin_maxcost within f3_maxcost
                         if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= F3_MAXCOST and auction['start']+60000 > now:
-                            
-                            #if auction['item_name'] not in lm_prev_results:
-                            if auction['category'] == 'weapon' or auction['category'] == 'armor':
-                                if auction['category'] == 'armor':
-                                    ignore = False
-                                    for name in IGNOREARMOURS_Filter_LM:
-                                        if name in auction['item_name']:
-                                            ignore = True
-                                    if ignore == False:
+                            if prices[index][0] <= LARGE_MARGIN_MAXCOST:
+                                #if auction['item_name'] not in lm_prev_results:
+                                if auction['category'] == 'weapon' or auction['category'] == 'armor':
+                                    if auction['category'] == 'armor':
+                                        ignore = False
+                                        for name in IGNOREARMOURS_Filter_LM:
+                                            if name in auction['item_name']:
+                                                ignore = True
+                                        if ignore == False:
+                                            lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                                    if auction['category'] == 'weapon':
                                         lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
-                                if auction['category'] == 'weapon':
-                                    lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                            if prices[index][0] <= F3_MAXCOST:
+                                #if auction['item_name'] not in lm_prev_results:
+                                if auction['category'] == 'weapon' or auction['category'] == 'armor':
+                                    if auction['category'] == 'armor':
+                                        ignore = False
+                                        for name in IGNOREARMOURS_Filter_LM:
+                                            if name in auction['item_name']:
+                                                ignore = True
+                                        if ignore == False:
+                                            f3_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                                    if auction['category'] == 'weapon':
+                                        f3_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
             #print(results)
             #print(lm_results)
             return data
@@ -234,10 +246,11 @@ async def get_data_asynchronous():
 
 def main():
     # Resets variables
-    global results, lm_results, prices, ignore_special_results, prices_ignore_special, START_TIME
+    global results, lm_results, f3_results, prices, ignore_special_results, prices_ignore_special, START_TIME
     START_TIME = default_timer()
     results = []
     lm_results = []
+    f3_results = []
     ignore_special_results = []
     prices = {}
     prices_ignore_special = {}
@@ -253,6 +266,7 @@ def main():
 
     #if len(results): results = [[entry, prices[entry[3]][1]] for entry in results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
     if len(lm_results): lm_results = [[entry, prices[entry[3]][1]] for entry in lm_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= LARGE_MARGIN_MAXCOST)]
+    if len(f3_results): f3_results = [[entry, prices[entry[3]][1]] for entry in f3_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= F3_MAXCOST)]
     if len(ignore_special_results): ignore_special_results = [[entry, prices_ignore_special[entry[3]][1]] for entry in ignore_special_results if (entry[2] > LOWEST_PRICE and prices_ignore_special[entry[3]][1] != float('inf') and prices_ignore_special[entry[3]][0] == entry[2] and prices_ignore_special[entry[3]][0]/prices_ignore_special[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
 
 

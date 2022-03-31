@@ -77,9 +77,9 @@ armour_weapon_meta_reforge_f3_remake = {
     'Withered': awmrf3r_withered_prelist,
     'Fabled': awmrf3r_fabled_prelist,
     'Giant': ['Goldor\'s', 'Reaper Mask'],
-    'Ancient': ['Necron\'s', 'Maxor\'s', 'Final Destination', 'Shadow Assassin'],
-    'Necrotic': ['Storm\'s', 'Necromancer Lord', 'Wither Goggles'],
-    'Jaded': ['Sorrow'],
+    'Ancient': ['Necron\'s', 'Maxor\'s', 'Final Destination', 'Shadow Assassin', 'Tarantula', 'Superior'],
+    'Necrotic': ['Storm\'s', 'Necromancer Lord', 'Wither Goggles', 'Spirit Boots'],
+    'Jaded': ['Sorrow', 'Divan\'s'],
     'Spiritual': ['Juju Shortbow'],
 }
 
@@ -342,8 +342,9 @@ def main():
                     toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                     fAp3_2.write(toprint)
             with open('./fliplogs/logs_f3.txt', 'a') as fAp4:
+                truechecker3 = []
                 for reforge, AorWs in armour_weapon_meta_reforge_f3_remake.items():
-                    if reforge in str(result[0][1]) and any(substring in str(result[0][1]) for substring in AorWs):
+                    if reforge in str(result[0][1]) and any(substring in str(result[0][1]) for substring in AorWs) and ('✪' not in str(result[0][1]) or str(result[0][1]).count('✪') == 5):
                         toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                         fAp4.write(toprint)
         global lm_prev_results

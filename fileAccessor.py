@@ -43,12 +43,14 @@ async def check_logs():
     f2_2channel = bot.get_channel(955488324431253584)
     f3channel = bot.get_channel(951851755015114772)
     superchannel = bot.get_channel(953404693156089937)
+    petchannel = bot.get_channel(959984499905675304)
     log = './fliplogs/logs.txt' #unused xd
     lmlog = './fliplogs/logs_f1.txt'
     f2log = './fliplogs/logs_f2.txt'
     f2_2log = './fliplogs/logs_f2_2.txt'
     f3log = './fliplogs/logs_f3.txt'
     logsuper = './fliplogs/logs_s.txt'
+    petlog = './fliplogs/pet_logs.txt'
     try:
 
         # part for #auction-sniper-main
@@ -147,6 +149,23 @@ async def check_logs():
                     f.truncate(0)
             except:
                 pass
+        
+        #pet results
+
+        with open(petlog, 'r+') as f:
+            if os.path.getsize(petlog) > 0:
+                lines = [line.rstrip() for line in f]
+                try:
+                    slist = sort_margins(get_margin(lines))
+                    await petchannel.purge(limit=5)
+                    embed = discord.Embed(title='Current Top Pet Flips (1M Margin)')
+                    slistcut = list(slist.items())[:10]
+                    for i, (margin, aucstr) in enumerate(slistcut):
+                        embed.add_field(name=str(i+1)+'.', value=aucstr, inline=False)
+                    await petchannel.send(embed=embed)
+                    f.truncate(0)
+                except:
+                    pass
                     
 
     except FileNotFoundError:

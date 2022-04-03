@@ -21,6 +21,7 @@ toppage = resp['totalPages']
 results = []
 lm_results = []
 f3_results = []
+pet_results = []
 ignore_special_results = []
 
 prices = {}
@@ -206,6 +207,10 @@ def fetch(session, page):
                                             lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
                                     if auction['category'] == 'weapon':
                                         lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                                if auction['category'] == 'misc':
+                                    if 'Right-click to add this pet to' in auction['item_lore']:
+                                        print(auction)
+                                        pet_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
                             if prices[index][0] <= F3_MAXCOST:
                                 #if auction['item_name'] not in lm_prev_results:
                                 if auction['category'] == 'weapon' or auction['category'] == 'armor':
@@ -246,12 +251,13 @@ async def get_data_asynchronous():
 
 def main():
     # Resets variables
-    global results, lm_results, f3_results, prices, ignore_special_results, prices_ignore_special, START_TIME
+    global results, lm_results, f3_results, prices, ignore_special_results, prices_ignore_special, pet_results, START_TIME
     START_TIME = default_timer()
     results = []
     lm_results = []
     f3_results = []
     ignore_special_results = []
+    pet_results = []
     prices = {}
     prices_ignore_special = {}
     
@@ -268,6 +274,7 @@ def main():
     if len(lm_results): lm_results = [[entry, prices[entry[3]][1]] for entry in lm_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= LARGE_MARGIN_MAXCOST)]
     if len(f3_results): f3_results = [[entry, prices[entry[3]][1]] for entry in f3_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= F3_MAXCOST)]
     if len(ignore_special_results): ignore_special_results = [[entry, prices_ignore_special[entry[3]][1]] for entry in ignore_special_results if (entry[2] > LOWEST_PRICE and prices_ignore_special[entry[3]][1] != float('inf') and prices_ignore_special[entry[3]][0] == entry[2] and prices_ignore_special[entry[3]][0]/prices_ignore_special[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
+    if len(pet_results): pet_results = [[entry, prices[entry[3]][1]] for entry in pet_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= LARGE_MARGIN_MAXCOST)]
 
 
     #for #auction-sniper-main
@@ -342,11 +349,13 @@ def main():
                     toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                     fAp3_2.write(toprint)
             with open('./fliplogs/logs_f3.txt', 'a') as fAp4:
-                truechecker3 = []
                 for reforge, AorWs in armour_weapon_meta_reforge_f3_remake.items():
                     if reforge in str(result[0][1]) and any(substring in str(result[0][1]) for substring in AorWs) and ('✪' not in str(result[0][1]) or str(result[0][1]).count('✪') == 5):
                         toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                         fAp4.write(toprint)
+            with open('./fliplogs/pet_logs.txt', 'a') as fAp5:
+                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
+                fAp5.write(toprint)
         global lm_prev_results
         lm_prev_results = lm_results
 

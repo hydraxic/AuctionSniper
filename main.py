@@ -353,11 +353,14 @@ def main():
                     if reforge in str(result[0][1]) and any(substring in str(result[0][1]) for substring in AorWs) and ('✪' not in str(result[0][1]) or str(result[0][1]).count('✪') == 5):
                         toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                         fAp4.write(toprint)
-            with open('./fliplogs/pet_logs.txt', 'a') as fAp5:
-                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
-                fAp5.write(toprint)
         global lm_prev_results
         lm_prev_results = lm_results
+    
+    if len(pet_results):
+        for result in pet_results:
+            with open('./fliplogs/pet_logs.txt', 'a') as fAp5:
+                    toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
+                    fAp5.write(toprint)
 
 print("Looking for auctions...")
 main()

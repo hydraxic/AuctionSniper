@@ -1,3 +1,5 @@
+# modules
+
 import asyncio
 from json import JSONDecodeError
 import re
@@ -7,16 +9,18 @@ if op: import winsound
 from concurrent.futures import ThreadPoolExecutor
 from timeit import default_timer
 import time
-
 import pandas as pd
 import requests
-
 from plyer import notification
+
+# auction api
 
 c = requests.get("https://api.hypixel.net/skyblock/auctions?page=0")
 resp = c.json()
 now = resp['lastUpdated']
 toppage = resp['totalPages']
+
+# result and prices variables
 
 results = []
 lm_results = []
@@ -27,48 +31,17 @@ ignore_special_results = []
 prices = {}
 prices_ignore_special = {}
 
-#make sure the flips aren't repeated (only for for LM flips cuz yeah)
+# parts to remove
 
-lm_prev_results = []
-
-# stuff to remove
 STARS = [" ✦", "⚚ ", " ✪", "✪"]
 REFORGES = ["Very", "Stiff ", "Lucky ", "Jerry's ", "Dirty ", "Fabled ", "Suspicious ", "Gilded ", "Warped ", "Withered ", "Bulky ", "Stellar ", "Heated ", "Ambered ", "Fruitful ", "Magnetic ", "Fleet ", "Mithraic ", "Auspicious ", "Refined ", "Headstrong ", "Precise ", "Spiritual ", "Moil ", "Blessed ", "Toil ", "Bountiful ", "Candied ", "Submerged ", "Reinforced ", "Cubic ", "Warped ", "Undead ", "Ridiculous ", "Necrotic ", "Spiked ", "Jaded ", "Loving ", "Perfect ", "Renowned ", "Giant ", "Empowered ", "Ancient ", "Sweet ", "Silky ", "Bloody ", "Shaded ", "Gentle ", "Odd ", "Fast ", "Fair ", "Epic ", "Sharp ", "Heroic ", "Spicy ", "Legendary ", "Deadly ", "Fine ", "Grand ", "Hasty ", "Neat ", "Rapid ", "Unreal ", "Awkward ", "Rich ", "Clean ", "Fierce ", "Heavy ", "Light ", "Mythic ", "Pure ", "Smart ", "Titanic ", "Wise ", "Bizarre ", "Itchy ", "Ominous ", "Pleasant ", "Pretty ", "Shiny ", "Simple ", "Strange ", "Vivid ", "Godly ", "Demonic ", "Forceful ", "Hurtful ", "Keen ", "Strong ", "Superior ", "Unpleasant ", "Zealous "]
+
+# reforge filters
 
 SWORDFLIPREFORGES_Filter_I = ['Fabled', 'Withered', 'Suspicious']
 ARMORFLIPREFORGES_Filter_I = ['Ancient', 'Renowned', 'Necrotic']
 
 IGNOREARMOURS_Filter_LM = ['Glacite', 'Goblin', 'Crystal', 'Farm', 'Mushroom', 'Angler', 'Pumpkin', 'Cactus', 'Leaflet', 'Lapis', 'Miner\'s', 'Golem', 'Miner', 'Hardened Diamond', 'Fairy', 'Growth', 'Salmon', 'Zombie', 'Speedster', 'Holy', 'Rotten', 'Bouncy', 'Heavy', 'Skeleton Grunt', 'Skeleton Soldier', 'Super Heavy']
-
-'''
-armour_weapon_meta_reforge_f3 = {
-    #armour
-    'Goldor\'s': 'Giant',
-    'Necron\'s': 'Ancient', #necron deez nuts
-    'Storm\'s': 'Necrotic',
-    'Maxor\'s': 'Ancient',
-    'Final Destination': 'Ancient',
-    'Sorrow': 'Jaded',
-    'Shadow Assassin': 'Ancient',
-    'Reaper Mask': 'Giant',
-    'Necromancer Lord': 'Necrotic',
-    'Wither Goggles': 'Necrotic',
-
-    #weapons
-    'Juju Shortbow': 'Spiritual',
-    'Flower of Truth': 'Fabled', # Fabled or withered for both them
-    'Flower of Truth': 'Withered',
-    'Livid Dagger': 'Fabled',
-    'Livid Dagger': 'Withered',
-    'Shadow Fury': 'Fabled',
-    'Shadow Fury': 'Withered',
-    'Emerald Blade': 'Fabled',
-    'Emerald Blade': 'Withered',
-    'Giant\'s Sword': 'Fabled',
-    'Giant\'s Sword': 'Withered',
-    
-    #for any average weapon, fabled or withered, idk try adding it soon
-}'''
 
 awmrf3r_withered_prelist = ['Flower of Truth', 'Livid Dagger', 'Shadow Fury', 'Emerald Blade', 'Giant\'s Sword']
 awmrf3r_fabled_prelist = ['Flower of Truth', 'Livid Dagger', 'Shadow Fury', 'Emerald Blade', 'Giant\'s Sword', 'Voidedge Katana', 'Reaper Falchion']
@@ -108,15 +81,12 @@ ignore_reforges_f2 = {
     'Wise',
 }
 
-# Constant for the lowest priced item you want to be shown to you; feel free to change this
+# the lowest price an item can have
 LOWEST_PRICE = 500
 
-# Constant to turn on/off desktop notifications
-NOTIFY = False
-
-# Constant for the lowest percent difference you want to be shown to you; feel free to change this
-LOWEST_PERCENT_MARGIN = 1/2
-LARGE_MARGIN_P_M = 0.9
+# config variables
+LOWEST_PERCENT_MARGIN = 1/2 # percent diffences for super sniper
+LARGE_MARGIN_P_M = 0.9 # percent differences for filtered snipers
 LARGE_MARGIN = 1000000 # flips that are more than a mil profit
 LARGE_MARGIN_MAXCOST = 50000000 #50m
 F3_MAXCOST = 200000000 #200m
@@ -139,17 +109,6 @@ def fetch(session, page):
                         name = str(auction['item_name'])
                         tier = str(auction['tier'])
                         index = re.sub("\[[^\]]*\]", "", name + tier)
-                        # removes reforges and other yucky characters
-                        '''for reforge in REFORGES:
-                            if reforge in index:
-                                index = index.replace(reforge, "")
-                            else:
-                                index = index.replace(reforge, "")
-                        for star in STARS:
-                            if star in index:
-                                index = index.replace(star, "")
-                            else:
-                                index = index.replace(star, "")'''
                         # if the current item already has a price in the prices map, the price is updated
                         filtindex = index
                         for reforge in REFORGES:
@@ -180,23 +139,13 @@ def fetch(session, page):
                                 prices_ignore_special[filtindex][0] = auction['starting_bid']
                             elif prices_ignore_special[filtindex][1] > auction['starting_bid']:
                                 prices_ignore_special[filtindex][1] = auction['starting_bid']
-                        # otherwise, it's added to the prices map
                         else:
                             prices_ignore_special[filtindex] = [auction['starting_bid'], float("inf")]
                         
-                        #print(prices_ignore_special[filtindex])
-
-                        # if the auction fits in some parameters
-                        
-                        #yeah so main sniper gone cuz bad
-
-                        #if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
-                        #    results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
                         if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LOWEST_PERCENT_MARGIN and auction['start']+60000 > now:
                             ignore_special_results.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])                                                       # vv since f3_maxcost is larger than large_margin_maxcost, i can check to see if large_margin_maxcost within f3_maxcost
                         if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= F3_MAXCOST and auction['start']+60000 > now:
                             if prices[index][0] <= LARGE_MARGIN_MAXCOST:
-                                #if auction['item_name'] not in lm_prev_results:
                                 if auction['category'] == 'weapon' or auction['category'] == 'armor':
                                     if auction['category'] == 'armor':
                                         ignore = False
@@ -204,15 +153,13 @@ def fetch(session, page):
                                             if name in auction['item_name']:
                                                 ignore = True
                                         if ignore == False:
-                                            lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                                            lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
                                     if auction['category'] == 'weapon':
-                                        lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                                        lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
                                 if auction['category'] == 'misc':
                                     if 'Right-click to add this pet to' in auction['item_lore']:
-                                        #print(auction)
                                         pet_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
                             if prices[index][0] <= F3_MAXCOST:
-                                #if auction['item_name'] not in lm_prev_results:
                                 if auction['category'] == 'weapon' or auction['category'] == 'armor':
                                     if auction['category'] == 'armor':
                                         ignore = False
@@ -220,11 +167,9 @@ def fetch(session, page):
                                             if name in auction['item_name']:
                                                 ignore = True
                                         if ignore == False:
-                                            f3_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
+                                            f3_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
                                     if auction['category'] == 'weapon':
-                                        f3_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index]) #1: auction['item_name']
-            #print(results)
-            #print(lm_results)
+                                        f3_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
             return data
         except:
             print('jsondecodeerror probably i hate this')
@@ -270,6 +215,7 @@ def main():
 
     #main sniper gone cuz bad #2
     print(pet_results)
+    #keeping just in case tho
     #if len(results): results = [[entry, prices[entry[3]][1]] for entry in results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
     if len(lm_results): lm_results = [[entry, prices[entry[3]][1]] for entry in lm_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= LARGE_MARGIN_MAXCOST)]
     if len(f3_results): f3_results = [[entry, prices[entry[3]][1]] for entry in f3_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= F3_MAXCOST)]
@@ -277,27 +223,11 @@ def main():
     if len(pet_results): pet_results = [[entry, prices[entry[3]][1]] for entry in pet_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= LARGE_MARGIN_MAXCOST)]
     #print(pet_results)
 
-    #for #auction-sniper-main
-
     '''
 
     #main sniper gone cuz bad #3
-
+    #keeping just in case
     if len(results): # if there's results to print
-
-        if NOTIFY: 
-            notification.notify(
-                title = max(results, key=lambda entry:entry[1])[0][1],
-                message = "Lowest BIN: " + f'{max(results, key=lambda entry:entry[1])[0][2]:,}' + "\nSecond Lowest: " + f'{max(results, key=lambda entry:entry[1])[1]:,}',
-                app_icon = None,
-                timeout = 4,
-            )
-        
-        #df=pd.DataFrame(['/viewauction ' + str(max(results, key=lambda entry:entry[1])[0][0])])
-        #df.to_clipboard(index=False,header=False) # copies most valuable auction to clipboard (usually just the only auction cuz very uncommon for there to be multiple
-        
-        #done = default_timer() - START_TIME
-        #if op: winsound.Beep(500, 500) # emits a frequency 500hz, for 500ms
         for result in results:
             with open('./fliplogs/logs.txt', 'a') as fAp:
                 toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
@@ -353,8 +283,6 @@ def main():
                     if reforge in str(result[0][1]) and any(substring in str(result[0][1]) for substring in AorWs) and ('✪' not in str(result[0][1]) or str(result[0][1]).count('✪') == 5):
                         toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                         fAp4.write(toprint)
-        global lm_prev_results
-        lm_prev_results = lm_results
     
     if len(pet_results):
         for result in pet_results:

@@ -51,11 +51,12 @@ armour_weapon_meta_reforge_f3_remake = {
     #reforge, items
     'Withered': awmrf3r_withered_prelist,
     'Fabled': awmrf3r_fabled_prelist,
-    'Giant': ['Goldor\'s', 'Reaper Mask'],
-    'Ancient': ['Necron\'s', 'Maxor\'s', 'Final Destination', 'Shadow Assassin', 'Tarantula', 'Superior'],
+    'Giant': ['Goldor\'s', 'Reaper Mask', 'Necromancer Lord'],
+    'Ancient': ['Necron\'s', 'Maxor\'s', 'Final Destination', 'Shadow Assassin', 'Tarantula', 'Superior', 'Golden Bonzo', 'Diamond Bonzo', 'Golden Scarf', 'Diamond Scarf', 'Golden Professor', 'Diamond Professor', 'Golden Thorn', 'Diamond Thorn', 'Golden Livid', 'Diamond Livid', 'Golden Sadan', 'Diamond Sadan', 'Golden Necron', 'Diamond Necron'],
     'Necrotic': ['Storm\'s', 'Necromancer Lord', 'Wither Goggles', 'Spirit Boots'],
     'Jaded': ['Sorrow', 'Divan\'s'],
     'Spiritual': ['Juju Shortbow'],
+    'Renowned': ['Sorrow'],
 }
 
 ignore_reforges_f2 = {

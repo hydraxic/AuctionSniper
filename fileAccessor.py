@@ -44,7 +44,7 @@ async def check_logs():
     f2_2channel = bot.get_channel(955488324431253584)
     f3channel = bot.get_channel(951851755015114772)
     superchannel = bot.get_channel(953404693156089937)
-    super2channel = bot.get_channel()#make channel soon
+    #super2channel = bot.get_channel()#make channel soon
     petchannel = bot.get_channel(959984499905675304)
     log = './fliplogs/logs.txt' #unused xd
     lmlog = './fliplogs/logs_f1.txt'
@@ -153,7 +153,7 @@ async def check_logs():
             except:
                 pass
 
-        with open(logsuper2, 'r+') as f:
+        '''with open(logsuper2, 'r+') as f:
             try:
                 if os.path.getsize(logsuper2) > 0:
                     lines = [line.rstrip() for line in f]
@@ -163,6 +163,7 @@ async def check_logs():
                     f.truncate(0)
             except:
                 pass
+            '''
         
         #pet results
 

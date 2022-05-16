@@ -3,6 +3,7 @@ from discord.ext import commands
 import time
 import os
 import collections
+from TOKEN import TOKEN
 
 bot = commands.Bot(command_prefix = 'fa.')
 
@@ -190,4 +191,4 @@ async def start_check(ctx):
         await check_logs()
         time.sleep(10)
 
-bot.run('OTQxMDMzMjUxMjE5MzIwODky.YgQDgg.zjB-77r1NdVDVNalqHu-O2q9Oa4')
+bot.run(TOKEN)

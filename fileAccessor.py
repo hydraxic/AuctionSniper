@@ -33,7 +33,7 @@ def get_margin(auctions):
 
             margin = (priceii_v - pricei_v)
 
-            if margin <= 5000000:
+            if margin <= 50000000:
                 new_auction_list[margin] = auc
     if new_auction_list != {}: return new_auction_list
 

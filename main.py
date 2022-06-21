@@ -31,7 +31,7 @@ prices_ignore_special = {}
 # parts to remove
 
 STARS = [" ✦", "⚚ ", " ✪", "✪"]
-REFORGES = ["Very", "Stiff ", "Lucky ", "Jerry's ", "Dirty ", "Fabled ", "Suspicious ", "Gilded ", "Warped ", "Withered ", "Bulky ", "Stellar ", "Heated ", "Ambered ", "Fruitful ", "Magnetic ", "Fleet ", "Mithraic ", "Auspicious ", "Refined ", "Headstrong ", "Precise ", "Spiritual ", "Moil ", "Blessed ", "Toil ", "Bountiful ", "Candied ", "Submerged ", "Reinforced ", "Cubic ", "Warped ", "Undead ", "Ridiculous ", "Necrotic ", "Spiked ", "Jaded ", "Loving ", "Perfect ", "Renowned ", "Giant ", "Empowered ", "Ancient ", "Sweet ", "Silky ", "Bloody ", "Shaded ", "Gentle ", "Odd ", "Fast ", "Fair ", "Epic ", "Sharp ", "Heroic ", "Spicy ", "Legendary ", "Deadly ", "Fine ", "Grand ", "Hasty ", "Neat ", "Rapid ", "Unreal ", "Awkward ", "Rich ", "Clean ", "Fierce ", "Heavy ", "Light ", "Mythic ", "Pure ", "Smart ", "Titanic ", "Wise ", "Bizarre ", "Itchy ", "Ominous ", "Pleasant ", "Pretty ", "Shiny ", "Simple ", "Strange ", "Vivid ", "Godly ", "Demonic ", "Forceful ", "Hurtful ", "Keen ", "Strong ", "Superior ", "Unpleasant ", "Zealous "]
+REFORGES = ["Very ",'Highly ','Extremely ','Not So ','Thicc ','Absolutely ','Even More ',"Stiff ", "Lucky ", "Jerry's ", "Dirty ", "Fabled ", "Suspicious ", "Gilded ", "Warped ", "Withered ", "Bulky ", "Stellar ", "Heated ", "Ambered ", "Fruitful ", "Magnetic ", "Fleet ", "Mithraic ", "Auspicious ", "Refined ", "Headstrong ", "Precise ", "Spiritual ", "Moil ", "Blessed ", "Toil ", "Bountiful ", "Candied ", "Submerged ", "Reinforced ", "Cubic ", "Warped ", "Undead ", "Ridiculous ", "Necrotic ", "Spiked ", "Jaded ", "Loving ", "Perfect ", "Renowned ", "Giant ", "Empowered ", "Ancient ", "Sweet ", "Silky ", "Bloody ", "Shaded ", "Gentle ", "Odd ", "Fast ", "Fair ", "Epic ", "Sharp ", "Heroic ", "Spicy ", "Legendary ", "Deadly ", "Fine ", "Grand ", "Hasty ", "Neat ", "Rapid ", "Unreal ", "Awkward ", "Rich ", "Clean ", "Fierce ", "Heavy ", "Light ", "Mythic ", "Pure ", "Smart ", "Titanic ", "Wise ", "Bizarre ", "Itchy ", "Ominous ", "Pleasant ", "Pretty ", "Shiny ", "Simple ", "Strange ", "Vivid ", "Godly ", "Demonic ", "Forceful ", "Hurtful ", "Keen ", "Strong ", "Superior ", "Unpleasant ", "Zealous ","Double-Bit ","Lumberjack's ","Great ","Rugged ","Lush ","Green Thumb ","Peasant's ","Robust ","Zooming ","Unyielding ","Prospector's ","Excellent ","Sturdy ","Fortunate ","Strengthened ","Fortified ","Waxed ","Glistening ","Treacherous ","Salty ","Candied "]
 
 # reforge filters
 
@@ -305,18 +305,30 @@ def dostuff():
     global now, toppage
 
     # if 60 seconds have passed since the last update
-    if time.time()*1000 > now + 60000:
+    if time.time() * 1000 > now + 60000:
         prevnow = now
         now = float('inf')
         try:
-            c = requests.get("https://api.hypixel.net/skyblock/auctions?page=0").json()
-            if c:
-                if c['lastUpdated'] != prevnow:
-                    now = c['lastUpdated']
-                    toppage = c['totalPages']
-                    main()
-                else:
-                    now = prevnow
+            c = requests.get(
+                "https://api.hypixel.net/skyblock/auctions?page=0")
+            type = str(c.headers['Content-Type'])
+            if c.ok and 'application/json; charset=utf-8' == type:
+                try:
+                    c = c.json()
+                    if c:
+                        if c['lastUpdated'] != prevnow:
+                            now = c['lastUpdated']
+                            toppage = c['totalPages']
+                            main()
+                        else:
+                            now = prevnow
+                            return
+                except ValueError:
+                    print('bad response')
+                    return
+            else:
+                print('not json response')
+                return
         except Exception as e:
             print('uh oh error ' + str(e))
             pass

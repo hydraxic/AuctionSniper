@@ -325,16 +325,13 @@ def dostuff():
                             return
                 except ValueError:
                     print('bad response')
-                    os.execv(sys.argv[0], sys.argv)
-                    return
+                    os.execv(sys.executable, ['python'] + sys.argv)
             else:
                 print('not json response')
-                os.execv(sys.argv[0], sys.argv)
-                return
+                os.execv(sys.executable, ['python'] + sys.argv)
         except Exception as e:
             print('uh oh error ' + str(e))
-            os.execv(sys.argv[0], sys.argv)
-            pass
+            os.execv(sys.executable, ['python'] + sys.argv)
 
 while True:
     dostuff()

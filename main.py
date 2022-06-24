@@ -3,7 +3,7 @@
 import asyncio
 from json import JSONDecodeError
 import re
-import os
+import os, sys
 from concurrent.futures import ThreadPoolExecutor
 from timeit import default_timer
 import time
@@ -325,12 +325,15 @@ def dostuff():
                             return
                 except ValueError:
                     print('bad response')
+                    os.execv(sys.argv[0], sys.argv)
                     return
             else:
                 print('not json response')
+                os.execv(sys.argv[0], sys.argv)
                 return
         except Exception as e:
             print('uh oh error ' + str(e))
+            os.execv(sys.argv[0], sys.argv)
             pass
 
 while True:

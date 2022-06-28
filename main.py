@@ -55,6 +55,8 @@ armour_weapon_meta_reforge_f3_remake = {
     'Renowned': ['Sorrow'],
 }
 
+ultimate_enchants = ['Bank', 'Chimera', 'Combo', 'Duplex', 'Fatal Tempo', 'Flash', 'Inferno', 'Last Stand', 'Legion', 'No Pain No Gain', 'One For All', 'Rend', 'Soul Eater', 'Swarm', 'Ultimate Wise', 'Wisdom']
+
 ignore_reforges_f2 = {
     #swords
     'Gentle',
@@ -250,11 +252,11 @@ def main():
                 #fAp.close()
                 #print(toprint)
 
-    if len(ignore_special_results_1m):
+    '''if len(ignore_special_results_1m):
         for result in ignore_special_results_1m:
             with open('./fliplogs/logs_s2.txt', 'a') as fApSpecial2:
                 toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
-                fApSpecial2.write(toprint)
+                fApSpecial2.write(toprint)'''
 
     ##ah-sniper-f1 and #ah-sniper-filtered
 

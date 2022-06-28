@@ -182,6 +182,6 @@ async def start_check(ctx):
     if ctx.author.id == 488730568209465344:
         while True:
             await check_logs()
-            time.sleep(10)
+            time.sleep(1)
 
 bot.run(TOKEN)

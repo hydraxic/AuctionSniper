@@ -158,14 +158,17 @@ def fetch(session, page):
                                     auformat = "N/A"
                                     for ench in ultimate_enchants:
                                         if ench in desc:
+                                            print("ench is in desc")
                                             ult_ench = ench
                                             if not ult_ench == 'One For All': 
+                                                print('ench is not ofa')
                                                 auname = ult_ench.rsplit(' ', 1)[0]
                                                 aunameformat = auname.replace(' ', '_')
                                                 auformat = 'ULTIMATE_{};5'.format(aunameformat)
                                             elif ult_ench == 'One For All':
                                                 auformat = 'ULTIMATE_ONE_FOR_ALL;1'
                                     if auformat in au:
+                                        print('auformat is in au')
                                         auprice = float(au[auformat])
                                     if auction['category'] == 'armor':
                                         ignore = False

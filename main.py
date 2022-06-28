@@ -169,6 +169,7 @@ def fetch(session, page):
                                                 aunameCaps = auname.upper()
                                                 aunameformat = aunameCaps.replace(' ', '_')
                                                 auformat = 'ULTIMATE_{};5'.format(aunameformat)
+                                                print(auformat)
                                             elif ult_ench == 'One For All':
                                                 auformat = 'ULTIMATE_ONE_FOR_ALL;1'
                                             elif ult_ench == 'Ultimate Wise V':
@@ -176,8 +177,7 @@ def fetch(session, page):
                                     if auformat in au:
                                         print('auformat is in au')
                                         auprice = float(au[auformat])
-
-                                    print(auformat, auprice)
+                                        print(auformat, auprice)
 
                                     if auction['category'] == 'armor':
                                         ignore = False

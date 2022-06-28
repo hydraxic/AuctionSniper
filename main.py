@@ -16,6 +16,9 @@ resp = c.json()
 now = resp['lastUpdated']
 toppage = resp['totalPages']
 
+a_url = requests.get("https://moulberry.codes/lowestbin.json")
+au = a_url.json()
+
 # result and prices variables
 
 results = []
@@ -55,7 +58,7 @@ armour_weapon_meta_reforge_f3_remake = {
     'Renowned': ['Sorrow'],
 }
 
-ultimate_enchants = ['Bank', 'Chimera', 'Combo', 'Duplex', 'Fatal Tempo', 'Flash', 'Inferno', 'Last Stand', 'Legion', 'No Pain No Gain', 'One For All', 'Rend', 'Soul Eater', 'Swarm', 'Ultimate Wise', 'Wisdom']
+ultimate_enchants = ['Bank V', 'Chimera V', 'Combo V', 'Duplex V', 'Fatal Tempo V', 'Flash V', 'Inferno V', 'Last Stand V', 'Legion V', 'No Pain No Gain V', 'One For All', 'Rend V', 'Soul Eater V', 'Swarm V', 'Ultimate Jerry V', 'Ultimate Wise V', 'Wisdom V']
 
 ignore_reforges_f2 = {
     #swords
@@ -149,18 +152,32 @@ def fetch(session, page):
                         if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= F3_MAXCOST and auction['start'] + 60000 > now:
                             if prices[index][0] <= LARGE_MARGIN_MAXCOST:
                                 if auction['category'] == 'weapon' or auction['category'] == 'armor':
+                                    desc = str(auction['item_lore'])
+                                    ult_ench = "No Ultimate Enchant"
+                                    auprice = "N/A"
+                                    for ench in ultimate_enchants:
+                                        if ench in desc:
+                                            ult_ench = ench
+                                            if not ult_ench == 'One For All': 
+                                                auname = ult_ench.rsplit(' ', 1)[0]
+                                                aunameformat = auname.replace(' ', '_')
+                                                auformat = 'ULTIMATE_{};5'.format(aunameformat)
+                                            elif ult_ench == 'One For All':
+                                                auformat = 'ULTIMATE_ONE_FOR_ALL;1'
+                                    if auformat in au:
+                                        auprice = float(au[auformat])
                                     if auction['category'] == 'armor':
                                         ignore = False
                                         for name in IGNOREARMOURS_Filter_LM:
                                             if name in auction['item_name']:
                                                 ignore = True
                                         if ignore == False:
-                                            lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
+                                            lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, [ult_ench, auprice]])
                                     if auction['category'] == 'weapon':
-                                        lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
+                                        lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, [ult_ench, auprice]])
                                 if auction['category'] == 'misc':
                                     if 'Right-click to add this pet to' in auction['item_lore']:
-                                        pet_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
+                                        pet_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, [ult_ench, auprice]])
                             if prices[index][0] <= F3_MAXCOST:
                                 if auction['category'] == 'weapon' or auction['category'] == 'armor':
                                     if auction['category'] == 'armor':
@@ -169,9 +186,9 @@ def fetch(session, page):
                                             if name in auction['item_name']:
                                                 ignore = True
                                         if ignore == False:
-                                            f3_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
+                                            f3_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, [ult_ench, auprice]])
                                     if auction['category'] == 'weapon':
-                                        f3_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index])
+                                        f3_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, [ult_ench, auprice]])
             return data
         except:
             print('jsondecodeerror probably i hate this')
@@ -264,7 +281,7 @@ def main():
         for result in lm_results:
             #print(result)
             with open('./fliplogs/logs_f1.txt', 'a') as fAp2:
-                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
+                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1]) + "Ultimate Enchant: `{}` | Lowest BIN For Ultimate Enchant: `{}`".format(result[0][4][0], result[0][4][1])
                 fAp2.write(toprint)
                 #fAp.close()
                 #print(toprint)
@@ -276,7 +293,7 @@ def main():
                     else:
                         truechecker.append(False)
                 if not False in truechecker:
-                    toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
+                    toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1]) + "Ultimate Enchant: `{}` | Lowest BIN For Ultimate Enchant: `{}`".format(result[0][4][0], result[0][4][1])
                     fAp3.write(toprint)
             with open('./fliplogs/logs_f2_2.txt', 'a') as fAp3_2:
                 truechecker2 = []
@@ -286,18 +303,18 @@ def main():
                     else:
                         truechecker2.append(False)
                 if not False in truechecker2:
-                    toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
+                    toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1]) + "Ultimate Enchant: `{}` | Lowest BIN For Ultimate Enchant: `{}`".format(result[0][4][0], result[0][4][1])
                     fAp3_2.write(toprint)
             with open('./fliplogs/logs_f3.txt', 'a') as fAp4:
                 for reforge, AorWs in armour_weapon_meta_reforge_f3_remake.items():
                     if reforge in str(result[0][1]) and any(substring in str(result[0][1]) for substring in AorWs) and ('✪' not in str(result[0][1]) or str(result[0][1]).count('✪') == 5):
-                        toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
+                        toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1]) + "Ultimate Enchant: `{}` | Lowest BIN For Ultimate Enchant: `{}`".format(result[0][4][0], result[0][4][1])
                         fAp4.write(toprint)
     
     if len(pet_results):
         for result in pet_results:
             with open('./fliplogs/pet_logs.txt', 'a') as fAp5:
-                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
+                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1]) + "Ultimate Enchant: `{}` | Lowest BIN For Ultimate Enchant: `{}`".format(result[0][4][0], result[0][4][1])
                 fAp5.write(toprint)
 
 print("Looking for auctions...")

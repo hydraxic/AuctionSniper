@@ -155,6 +155,7 @@ def fetch(session, page):
                                     desc = str(auction['item_lore'])
                                     ult_ench = "No Ultimate Enchant"
                                     auprice = "N/A"
+                                    auformat = "N/A"
                                     for ench in ultimate_enchants:
                                         if ench in desc:
                                             ult_ench = ench

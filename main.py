@@ -153,6 +153,9 @@ def fetch(session, page):
                             if prices[index][0] <= LARGE_MARGIN_MAXCOST:
                                 if auction['category'] == 'weapon' or auction['category'] == 'armor':
                                     desc = str(auction['item_lore'])
+                                    global ult_ench
+                                    global auprice
+                                    global auformat
                                     ult_ench = "No Ultimate Enchant"
                                     auprice = "N/A"
                                     auformat = "N/A"
@@ -160,16 +163,22 @@ def fetch(session, page):
                                         if ench in desc:
                                             print("ench is in desc")
                                             ult_ench = ench
-                                            if not ult_ench == 'One For All': 
-                                                print('ench is not ofa')
+                                            if not ult_ench == 'One For All' and not ult_ench == 'Ultimate Wise V':
+                                                print('ench is not ofa or uwv')
                                                 auname = ult_ench.rsplit(' ', 1)[0]
-                                                aunameformat = auname.replace(' ', '_')
+                                                aunameCaps = auname.upper()
+                                                aunameformat = aunameCaps.replace(' ', '_')
                                                 auformat = 'ULTIMATE_{};5'.format(aunameformat)
                                             elif ult_ench == 'One For All':
                                                 auformat = 'ULTIMATE_ONE_FOR_ALL;1'
+                                            elif ult_ench == 'Ultimate Wise V':
+                                                auformat = 'ULTIMATE_WISE;5'
                                     if auformat in au:
                                         print('auformat is in au')
                                         auprice = float(au[auformat])
+
+                                    print(auformat, auprice)
+
                                     if auction['category'] == 'armor':
                                         ignore = False
                                         for name in IGNOREARMOURS_Filter_LM:
@@ -195,7 +204,9 @@ def fetch(session, page):
                                         f3_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, [ult_ench, auprice]])
             return data
         except Exception as e:
-            print(e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(e, exc_type, fname, exc_tb.tb_lineno)
             return
 
 async def get_data_asynchronous():

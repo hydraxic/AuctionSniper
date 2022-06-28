@@ -190,8 +190,8 @@ def fetch(session, page):
                                     if auction['category'] == 'weapon':
                                         f3_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, [ult_ench, auprice]])
             return data
-        except:
-            print('jsondecodeerror probably i hate this')
+        except Exception as e:
+            print(e)
             return
 
 async def get_data_asynchronous():

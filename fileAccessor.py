@@ -20,8 +20,8 @@ def get_margin(auctions):
     new_auction_list = {}
     for auc in auctions:
         if auc != '':
-            pricei = int(auc.replace('`', '').split('Price: ')[1].split(' | ')[0].replace(',', ''))
-            priceii = int(auc.replace('`', '').split('Price: ')[1].split(' | Second Lowest BIN: ')[1])
+            pricei = int(auc.split("`")[5].replace(',',''))
+            priceii = int(auc.split("`")[7].replace(',',''))
             margin = (priceii - pricei)
 
             if margin <= 50000000:

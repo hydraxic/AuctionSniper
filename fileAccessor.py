@@ -20,18 +20,9 @@ def get_margin(auctions):
     new_auction_list = {}
     for auc in auctions:
         if auc != '':
-            pricei_i = auc.replace('`','')
-            pricei_ii = pricei_i.split('Price: ')[1]
-            pricei_iii = pricei_ii.split(' | ')[0]
-            pricei_iv = pricei_iii.replace(',','')
-            pricei_v = int(pricei_iv)
-            priceii_i = auc.replace('`','')
-            priceii_ii = priceii_i.split('Price: ')[1]
-            priceii_iii = priceii_ii.split(' | Second Lowest BIN: ')[1]
-            priceii_iv = priceii_iii.replace(',','')
-            priceii_v = int(priceii_iv)
-
-            margin = (priceii_v - pricei_v)
+            pricei = int(auc.replace('`', '').split('Price: ')[1].split(' | ')[0].replace(',', ''))
+            priceii = int(auc.replace('`', '').split('Price: ')[1].split(' | Second Lowest BIN: ')[1])
+            margin = (priceii - pricei)
 
             if margin <= 50000000:
                 new_auction_list[margin] = auc
@@ -52,7 +43,7 @@ async def check_logs():
     f2_2log = './fliplogs/logs_f2_2.txt'
     f3log = './fliplogs/logs_f3.txt'
     logsuper = './fliplogs/logs_s.txt'
-    logsuper2 = './fliplogs/logs_s2.txt'
+    logsuper2 = './fliplogs/logs_s2.txt'#unused
     petlog = './fliplogs/pet_logs.txt'
     try:
 
@@ -65,7 +56,7 @@ async def check_logs():
         with open(log, 'r+') as f:
             if os.path.getsize('./fliplogs/logs.txt') > 0:
                 lines = [line.rstrip() for line in f]
-                for d in lines:
+                for d in lines:s
                     if d != '': 
                         await channel.send(d)
                 f.truncate(0)'''

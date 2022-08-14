@@ -147,13 +147,17 @@ def fetch(session, page):
                         else:
                             prices_ignore_special[filtindex] = [auction['starting_bid'], float("inf")]
                         
-                        if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LOWEST_PERCENT_MARGIN and auction['start'] + 60000 > now:
+                        if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LOWEST_PERCENT_MARGIN:# and auction['start'] + 60000 > now:
                             ignore_special_results.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])
-                        if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LARGE_MARGIN_P_M and prices_ignore_special[filtindex][1] - prices_ignore_special[filtindex][0] >= LARGE_MARGIN and auction['start'] + 60000 > now:
+                        if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LARGE_MARGIN_P_M and prices_ignore_special[filtindex][1] - prices_ignore_special[filtindex][0] >= LARGE_MARGIN:# and auction['start'] + 60000 > now:
                             ignore_special_results_1m.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])                                                    # vv since f3_maxcost is larger than large_margin_maxcost, i can check to see if large_margin_maxcost within f3_maxcost
-                        if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= F3_MAXCOST and auction['start'] + 60000 > now:
+                        print(prices[index][1], prices[index][0], auction['start'] + 60000 - now)
+                        if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= F3_MAXCOST:# and auction['start'] + 60000 > now:
+                            print('here2')
                             if prices[index][0] <= LARGE_MARGIN_MAXCOST:
+                                print('here1')
                                 if auction['category'] == 'weapon' or auction['category'] == 'armor':
+                                    print('here')
                                     desc = str(auction['item_lore'])
                                     global ult_ench
                                     global auprice
@@ -249,7 +253,7 @@ def main():
     # Makes sure all the results are still up to date
 
     #main sniper gone cuz bad #2
-    print(pet_results)
+    print(lm_results)
     #keeping just in case tho
     #if len(results): results = [[entry, prices[entry[3]][1]] for entry in results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
     if len(lm_results): lm_results = [[entry, prices[entry[3]][1]] for entry in lm_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= LARGE_MARGIN_MAXCOST)]

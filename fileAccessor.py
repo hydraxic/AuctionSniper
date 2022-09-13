@@ -37,6 +37,7 @@ async def check_logs():
     superchannel = bot.get_channel(953404693156089937)
     #super2channel = bot.get_channel()#make channel soon
     petchannel = bot.get_channel(959984499905675304)
+    runechannel = bot.get_channel(1019055075991240746)
     log = './fliplogs/logs.txt' #unused xd
     lmlog = './fliplogs/logs_f1.txt'
     f2log = './fliplogs/logs_f2.txt'
@@ -45,6 +46,7 @@ async def check_logs():
     logsuper = './fliplogs/logs_s.txt'
     logsuper2 = './fliplogs/logs_s2.txt'#unused
     petlog = './fliplogs/pet_logs.txt'
+    runelog = './fliplogs/logs_runes.txt'
     try:
 
         # part for #auction-sniper-main
@@ -169,6 +171,21 @@ async def check_logs():
                     for i, (margin, aucstr) in enumerate(slistcut):
                         embed.add_field(name=str(i+1)+'.', value=aucstr, inline=False)
                     await petchannel.send(embed=embed)
+                    f.truncate(0)
+                except:
+                    pass
+
+        with open(runelog, 'r+') as f:
+            if os.path.getsize(runelog) > 0:
+                lines = [line.rstrip() for line in f]
+                try:
+                    slist = sort_margins(get_margin(lines))
+                    await runechannel.purge(limit=5)
+                    embed = discord.Embed(title='Current Top Flips With T3 Runes (1M Margin, Excluding Rune Prices)')
+                    slistcut = list(slist.items())[:10]
+                    for i, (margin, aucstr) in enumerate(slistcut):
+                        embed.add_field(name=str(i+1)+'.', value=aucstr, inline=False)
+                    await runechannel.send(embed=embed)
                     f.truncate(0)
                 except:
                     pass

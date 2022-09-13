@@ -29,7 +29,7 @@ f3_results = []
 pet_results = []
 ignore_special_results = []
 ignore_special_results_1m = []
-
+rune_results = []
 prices = {}
 prices_ignore_special = {}
 
@@ -59,6 +59,12 @@ armour_weapon_meta_reforge_f3_remake = {
     'Spiritual': ['Juju Shortbow'],
     'Renowned': ['Sorrow'],
 }
+
+runes_worth = [
+    'Wake Rune III',
+    'Rainbow Rune III',
+    'Music Rune III'
+]
 
 ultimate_enchants = ['Bank V', 'Chimera V', 'Combo V', 'Duplex V', 'Fatal Tempo V', 'Flash V', 'Inferno V', 'Last Stand V', 'Legion V', 'No Pain No Gain V', 'One For All', 'Rend V', 'Soul Eater V', 'Swarm V', 'Ultimate Jerry V', 'Ultimate Wise V', 'Wisdom V']
 
@@ -167,10 +173,10 @@ def fetch(session, page):
                                     auformat = None
                                     for ench in ultimate_enchants:
                                         if ench in desc:
-                                            print("ench is in desc")
+                                            #print("ench is in desc")
                                             ult_ench = ench
                                             if not ult_ench == 'One For All' and not ult_ench == 'Ultimate Wise V':
-                                                print('ench is not ofa or uwv')
+                                                #print('ench is not ofa or uwv')
                                                 auname = ult_ench.rsplit(' ', 1)[0]
                                                 aunameCaps = auname.upper()
                                                 aunameformat = aunameCaps.replace(' ', '_')
@@ -180,7 +186,7 @@ def fetch(session, page):
                                             elif ult_ench == 'Ultimate Wise V':
                                                 auformat = 'ULTIMATE_WISE;5'
                                     if auformat in au:
-                                        print('auformat is in au')
+                                        #print('auformat is in au')
                                         auprice = float(au[auformat])
 
                                     if auction['category'] == 'armor':
@@ -192,6 +198,11 @@ def fetch(session, page):
                                             lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, [ult_ench, auprice]])
                                     if auction['category'] == 'weapon':
                                         lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, [ult_ench, auprice]])
+                                    
+                                    for rune in runes_worth:
+                                        if rune in desc:
+                                            rune_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, rune, [ult_ench, auprice]])
+
                                 if auction['category'] == 'misc':
                                     if 'Right-click to add this pet to' in auction['item_lore']:
                                         pet_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, [ult_ench, auprice]])
@@ -253,7 +264,7 @@ def main():
     # Makes sure all the results are still up to date
 
     #main sniper gone cuz bad #2
-    print(lm_results)
+    #print(lm_results)
     #keeping just in case tho
     #if len(results): results = [[entry, prices[entry[3]][1]] for entry in results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
     if len(lm_results): lm_results = [[entry, prices[entry[3]][1]] for entry in lm_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= LARGE_MARGIN_MAXCOST)]
@@ -341,6 +352,13 @@ def main():
                         else:
                             toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                         fAp4.write(toprint)
+
+    if len(rune_results):
+        print(rune_results)
+        for result in rune_results:
+            with open('./fliplogs/logs_runes.txt', 'a') as fAp5:
+                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1]) + result[4] + " Ultimate Enchant: `{}` | Lowest BIN For Ultimate Enchant: `{}`".format(result[0][5][0], result[0][5][1])
+                fAp5.write(toprint)
     
     if len(pet_results):
         for result in pet_results:

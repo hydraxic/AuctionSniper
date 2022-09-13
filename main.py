@@ -355,12 +355,12 @@ def main():
                             toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                         fAp4.write(toprint)
 
-    if len(rune_results):
-        print(rune_results)
-        for result in rune_results:
-            with open('./fliplogs/logs_runes.txt', 'a') as fAp5:
-                toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1]) + result[4] + " Ultimate Enchant: `{}` | Lowest BIN For Ultimate Enchant: `{}`".format(result[0][5][0], result[0][5][1])
-                fAp5.write(toprint)
+    #if len(rune_results):
+     #   print(rune_results)
+     #   for result in rune_results:
+      #      with open('./fliplogs/logs_runes.txt', 'a') as fAp5:
+                #toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1]) + result[4] + " Ultimate Enchant: `{}` | Lowest BIN For Ultimate Enchant: `{}`".format(result[0][5][0], result[0][5][1])
+                #fAp5.write(toprint)
     
     if len(pet_results):
         for result in pet_results:

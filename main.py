@@ -120,7 +120,7 @@ def fetch(session, page):
                         name = str(auction['item_name'])
                         tier = str(auction['tier'])
                         index = re.sub("\[[^\]]*\]", "", name + tier)
-                        print(auction['item_desc'])
+                        print(auction['item_lore'])
                         # if the current item already has a price in the prices map, the price is updated
                         filtindex = index
                         for reforge in REFORGES:

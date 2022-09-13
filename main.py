@@ -165,6 +165,7 @@ def fetch(session, page):
                                 if auction['category'] == 'weapon' or auction['category'] == 'armor':
                               #      print('here')
                                     desc = str(auction['item_lore'])
+                                    print(desc)
                                     global ult_ench
                                     global auprice
                                     global auformat

@@ -122,6 +122,12 @@ def fetch(session, page):
                         index = re.sub("\[[^\]]*\]", "", name + tier)
                         print(auction['item_lore'])
                         # if the current item already has a price in the prices map, the price is updated
+
+                        # filtindex is the index without the reforge or star
+                        # index is a terrible name for what it actually is, but it's too late to change it now
+                        # index[0] is the lowest price
+                        # index[1] is the second lowest price
+                        # this chunk of code removes the reforge and star from the index
                         filtindex = index
                         for reforge in REFORGES:
                             if reforge in filtindex:
@@ -133,8 +139,12 @@ def fetch(session, page):
                                 filtindex = filtindex.replace(star, "")
                             else:
                                 filtindex = filtindex.replace(star, "")
-
                         
+                        # prices always starts out empty
+                        # if the item is not in the prices map, it is added, index 0 being the starting bid, and 1 being infinity temporarily
+                        # if the item is in the map, the index 0 is compared to the starting price of the auction, and if it is larger, index 1 becomes index 0, and index 0 becomes the starting price
+                        # and if index 1 is larger than the starting price, index 1 becomes the starting price
+
                         if index in prices:
                             if prices[index][0] > auction['starting_bid']:
                                 prices[index][1] = prices[index][0]
@@ -145,6 +155,9 @@ def fetch(session, page):
                         else:
                             prices[index] = [auction['starting_bid'], float("inf")]
 
+                        # this is does the same thing as the above chunk of code, but for the prices_ignore_special map
+                        # prices_ignore_special is for 
+
                         if filtindex in prices_ignore_special:
                             if prices_ignore_special[filtindex][0] > auction['starting_bid']:
                                 prices_ignore_special[filtindex][1] = prices_ignore_special[filtindex][0]
@@ -154,29 +167,53 @@ def fetch(session, page):
                         else:
                             prices_ignore_special[filtindex] = [auction['starting_bid'], float("inf")]
                         
+                        # what this first if statement does is 1. check if the second lowest price is greater than the set value for the lowest price the flipper allows (as we don't want 500 coin flips lol)
+                        # 2. check if the lowest price divided by the second lowest price is less than the set value for the lowest percent margin, as we want flips that are profitable
+                        # if the conditions are met, the auction is added to the results list
+
+                        # the second if statement does the same as the first, but for flips that yield at least 1m coins in profit, excluding taxes
+
                         if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LOWEST_PERCENT_MARGIN and auction['start'] + 60000 > now:
                             ignore_special_results.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])
                         if prices_ignore_special[filtindex][1] > LOWEST_PRICE and prices_ignore_special[filtindex][0]/prices_ignore_special[filtindex][1] < LARGE_MARGIN_P_M and prices_ignore_special[filtindex][1] - prices_ignore_special[filtindex][0] >= LARGE_MARGIN and auction['start'] + 60000 > now:
                             ignore_special_results_1m.append([auction['uuid'], re.sub(tier, "", filtindex), auction['starting_bid'], filtindex])                                                    # vv since f3_maxcost is larger than large_margin_maxcost, i can check to see if large_margin_maxcost within f3_maxcost
                         #$print(prices[index][1], prices[index][0], auction['start'] + 60000 - now)
+
+                        # this is the same as that second if statement, but for the prices map instead of the ingore_special map
+
                         if prices[index][1] > LOWEST_PRICE and prices[index][0]/prices[index][1] < LARGE_MARGIN_P_M and prices[index][1] - prices[index][0] >= LARGE_MARGIN and prices[index][0] <= F3_MAXCOST and auction['start'] + 60000 > now:
                           #  print('here2')
+
+                            # it now makes sure that the item does not cost wayyyy too much
+
                             if prices[index][0] <= LARGE_MARGIN_MAXCOST:
                              #   print('here1')
+
+                                # checks if the item is a weapon or a piece of armour
+
                                 if auction['category'] == 'weapon' or auction['category'] == 'armor':
                               #      print('here')
                                     desc = str(auction['item_lore'])
-                                    print(desc)
+                                    #print(desc)
                                     global ult_ench
                                     global auprice
                                     global auformat
                                     ult_ench = None
                                     auprice = None
                                     auformat = None
+
+                                    # we want to check the item for any ultimate_enchants, because theyre cool 
+
                                     for ench in ultimate_enchants:
+
+                                        # the description of the item has the enchantment in it so we check for it
+
                                         if ench in desc:
                                             #print("ench is in desc")
                                             ult_ench = ench
+
+                                            # formatting. we check for OFA and UW specifically because its differnt in the api
+
                                             if not ult_ench == 'One For All' and not ult_ench == 'Ultimate Wise V':
                                                 #print('ench is not ofa or uwv')
                                                 auname = ult_ench.rsplit(' ', 1)[0]
@@ -187,27 +224,49 @@ def fetch(session, page):
                                                 auformat = 'ULTIMATE_ONE_FOR_ALL;1'
                                             elif ult_ench == 'Ultimate Wise V':
                                                 auformat = 'ULTIMATE_WISE;5'
+
+                                    # au is moulberry's lowest price api which is used to find the lowest price of the ultimate enchantments
+                                    
                                     if auformat in au:
                                         #print('auformat is in au')
                                         auprice = float(au[auformat])
 
+                                    # check if the item is armour
+
                                     if auction['category'] == 'armor':
                                         ignore = False
+
+                                        # check the item for any reforges that are cring
+
                                         for name in IGNOREARMOURS_Filter_LM:
                                             if name in auction['item_name']:
                                                 ignore = True
+
+                                        # if it doesnt contain bad reforges it's added to the list
+
                                         if ignore == False:
                                             lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, [ult_ench, auprice]])
+
+                                    # check if the item is a weapon and add to the list
+
                                     if auction['category'] == 'weapon':
                                         lm_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, [ult_ench, auprice]])
                                     
+                                    # current code for rune flips but it barely works. actually more like doesnt work
+
                                     for rune in runes_worth:
                                         if rune in desc:
                                             rune_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, rune, [ult_ench, auprice]])
 
+                                # check if the item is a pet and add to the list
+
                                 if auction['category'] == 'misc':
                                     if 'Right-click to add this pet to' in auction['item_lore']:
                                         pet_results.append([auction['uuid'], re.sub(tier, "", index), auction['starting_bid'], index, [ult_ench, auprice]])
+
+                            # larger flips? i dont even know what my own code does
+                            # on second thought i think it checks for flips that cost more than 50m coins and caps out at 200m
+
                             if prices[index][0] <= F3_MAXCOST:
                                 if auction['category'] == 'weapon' or auction['category'] == 'armor':
                                     if auction['category'] == 'armor':
@@ -269,6 +328,20 @@ def main():
     #print(lm_results)
     #keeping just in case tho
     #if len(results): results = [[entry, prices[entry[3]][1]] for entry in results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
+    
+    # alright so what the actual hell is this
+    # i literally must have been high when i wrote this
+
+    # the lists that contain all the possible flips are in the format: [auction uuid, item name, starting bid, another item name (????? again i must have been high), [ultimate enchantment, ultimate enchantment price]]
+    #                                                                       0               1               2                       3                                4          0                          1
+
+    # the first if statement filters lm_results to only include items that 1. checks if the bid is greater than the lowest price, 2. makes sure the item price is not infinite (basically a flip was found), 3. makes sure the lowest BIN matches the starting bid, 4. makes sure the flip has a large enough margin, 5. makes sure the flip has a large profit, and the price of the lowest BIN is not too high
+    # the second if statement does the same thing as the first but for f3_results (aka flips with larger costs)
+    # the third if statement does the same thing as the first but for ignore_special_results but without checking for margins or max costs
+    # the fourth if statement does the same thing as the first but for ignore_special_results_1m
+    # the fifth if statement does the same thing as the first but for pet_results
+
+
     if len(lm_results): lm_results = [[entry, prices[entry[3]][1]] for entry in lm_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= LARGE_MARGIN_MAXCOST)]
     if len(f3_results): f3_results = [[entry, prices[entry[3]][1]] for entry in f3_results if (entry[2] > LOWEST_PRICE and prices[entry[3]][1] != float('inf') and prices[entry[3]][0] == entry[2] and prices[entry[3]][0]/prices[entry[3]][1] < LARGE_MARGIN_P_M and prices[entry[3]][1] - prices[entry[3]][0] >= LARGE_MARGIN and prices[entry[3]][0] <= F3_MAXCOST)]
     if len(ignore_special_results): ignore_special_results = [[entry, prices_ignore_special[entry[3]][1]] for entry in ignore_special_results if (entry[2] > LOWEST_PRICE and prices_ignore_special[entry[3]][1] != float('inf') and prices_ignore_special[entry[3]][0] == entry[2] and prices_ignore_special[entry[3]][0]/prices_ignore_special[entry[3]][1] < LOWEST_PERCENT_MARGIN)]
@@ -293,6 +366,10 @@ def main():
     
     #superfilter
 
+    # this saves the results for ignore_special_results to a file, which later is to be sent into the discord channel ah-sniper-super
+
+    # AND DO NOT ASK WHY THE VARIABLE IS NAMED FAP. this was not intentional
+
     if len(ignore_special_results):
         for result in ignore_special_results:
             with open('./fliplogs/logs_s.txt', 'a') as fApSpecial:
@@ -309,9 +386,14 @@ def main():
 
     ##ah-sniper-f1 and #ah-sniper-filtered
 
+    # sends results for ah-sniper-f1, ah-sniper-filtered, ah-sniper-x, and ah-sniper-ultimate 
+
     if len(lm_results):
         for result in lm_results:
             #print(result)
+
+            # no filtering done here as it is done in the main funcion
+
             with open('./fliplogs/logs_f1.txt', 'a') as fAp2:
                 if isinstance(result[0][4][0], str):
                     toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1]) + " Ultimate Enchant: `{}` | Lowest BIN For Ultimate Enchant: `{}`".format(result[0][4][0], result[0][4][1])
@@ -320,6 +402,9 @@ def main():
                 fAp2.write(toprint)
                 #fAp.close()
                 #print(toprint)
+
+            # this filter ignores useless reforges.
+
             with open('./fliplogs/logs_f2.txt', 'a') as fAp3:
                 truechecker = []
                 for reforge in ignore_reforges_f2:
@@ -333,6 +418,9 @@ def main():
                     else:
                         toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                     fAp3.write(toprint)
+
+            # this filter ignores useless reforges and only shows 5✪ or no star items.
+
             with open('./fliplogs/logs_f2_2.txt', 'a') as fAp3_2:
                 truechecker2 = []
                 for reforge in ignore_reforges_f2:
@@ -346,6 +434,10 @@ def main():
                     else:
                         toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                     fAp3_2.write(toprint)
+
+            # this filter ignores useless reforges and only shows 5✪ or no star items. This filter also only sends armour and weapons with very compatible reforges.
+            # note: this may be a little outdated as i havent played in a while so i dont know anything about new reforges and metas and such
+
             with open('./fliplogs/logs_f3.txt', 'a') as fAp4:
                 for reforge, AorWs in armour_weapon_meta_reforge_f3_remake.items():
                     if reforge in str(result[0][1]) and any(substring in str(result[0][1]) for substring in AorWs) and ('✪' not in str(result[0][1]) or str(result[0][1]).count('✪') == 5):
@@ -362,6 +454,8 @@ def main():
                 #toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1]) + result[4] + " Ultimate Enchant: `{}` | Lowest BIN For Ultimate Enchant: `{}`".format(result[0][5][0], result[0][5][1])
                 #fAp5.write(toprint)
     
+    # pet results
+
     if len(pet_results):
         for result in pet_results:
             with open('./fliplogs/pet_logs.txt', 'a') as fAp5:

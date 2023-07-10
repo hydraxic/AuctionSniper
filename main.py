@@ -120,7 +120,7 @@ def fetch(session, page):
                         name = str(auction['item_name'])
                         tier = str(auction['tier'])
                         index = re.sub("\[[^\]]*\]", "", name + tier)
-                        print(auction['item_lore'])
+                        #print(auction['item_lore'])
                         # if the current item already has a price in the prices map, the price is updated
 
                         # filtindex is the index without the reforge or star
@@ -421,7 +421,7 @@ def main():
 
             # this filter ignores useless reforges and only shows 5✪ or no star items.
 
-            with open('./fliplogs/logs_f2_2.txt', 'a') as fAp3_2:
+            with open('./fliplogs/logs_05stars.txt', 'a') as fAp3_2:
                 truechecker2 = []
                 for reforge in ignore_reforges_f2:
                     if not str(result[0][1]).startswith(reforge) and ('✪' not in str(result[0][1]) or str(result[0][1]).count('✪') == 5):
@@ -434,6 +434,20 @@ def main():
                     else:
                         toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
                     fAp3_2.write(toprint)
+
+            with open('./fliplogs/logs_5stars.txt', 'a') as fAp3_2_2:
+                truechecker3 = []
+                for reforge in ignore_reforges_f2:
+                    if not str(result[0][1]).startswith(reforge) and str(result[0][1]).count('✪') == 5:
+                        truechecker2.append(True)
+                    else:
+                        truechecker2.append(False)
+                if not False in truechecker2:
+                    if isinstance(result[0][4][0], str):
+                        toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1]) + " Ultimate Enchant: `{}` | Lowest BIN For Ultimate Enchant: `{}`".format(result[0][4][0], result[0][4][1])
+                    else:
+                        toprint = "\nView Auction: " + "/viewauction `" + str(result[0][0]) + "` | Item: `" + str(result[0][1]) + "` | Price: `{:,}`".format(result[0][2]) + " | Second Lowest BIN: `{:,}`".format(result[1])
+                    fAp3_2_2.write(toprint)
 
             # this filter ignores useless reforges and only shows 5✪ or no star items. This filter also only sends armour and weapons with very compatible reforges.
             # note: this may be a little outdated as i havent played in a while so i dont know anything about new reforges and metas and such

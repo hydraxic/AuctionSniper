@@ -32,7 +32,8 @@ async def check_logs():
     channel = bot.get_channel(949012493047578624) #unused xd
     lm_channel = bot.get_channel(949012556100554752)
     f2channel = bot.get_channel(950467930032848977)
-    f2_2channel = bot.get_channel(955488324431253584)
+    f2_2channel = bot.get_channel(955488324431253584) #THIS CHANNEL IS FOR 0 or 5 stars flips
+    f2_2_2channel = bot.get_channel(1101939979543924859) #THIS CHANNEL IS FOR 5 stars flips
     f3channel = bot.get_channel(951851755015114772)
     superchannel = bot.get_channel(953404693156089937)
     #super2channel = bot.get_channel()#make channel soon
@@ -41,7 +42,8 @@ async def check_logs():
     log = './fliplogs/logs.txt' #unused xd
     lmlog = './fliplogs/logs_f1.txt'
     f2log = './fliplogs/logs_f2.txt'
-    f2_2log = './fliplogs/logs_f2_2.txt'
+    f2_2log = './fliplogs/logs_05stars.txt'
+    f2_2_2log = '.fliplogs/logs_5stars.txt'
     f3log = './fliplogs/logs_f3.txt'
     logsuper = './fliplogs/logs_s.txt'
     logsuper2 = './fliplogs/logs_s2.txt'#unused
@@ -101,7 +103,7 @@ async def check_logs():
                 except:
                     pass
         
-        #ah-sniper-f2-v2
+        #ah-sniper-f2-v2 / stars items
 
         with open(f2_2log, 'r+') as f:
             if os.path.getsize(f2_2log) > 0:
@@ -109,11 +111,26 @@ async def check_logs():
                 try:
                     slist = sort_margins(get_margin(lines))
                     await f2_2channel.purge(limit=5)
-                    embed = discord.Embed(title='Current Top Flips (1M Margin) 2nd Filter v2')
+                    embed = discord.Embed(title='Current Top Flips (1M Margin) 0 or 5 Stars')
                     slistcut = list(slist.items())[:10]
                     for i, (margin, aucstr) in enumerate(slistcut):
                         embed.add_field(name=str(i+1)+'.', value=aucstr, inline=False)
                     await f2_2channel.send(embed=embed)
+                    f.truncate(0)
+                except:
+                    pass
+
+        with open(f2_2_2log, 'r+') as f:
+            if os.path.getsize(f2_2_2log) > 0:
+                lines = [line.rstrip() for line in f]
+                try:
+                    slist = sort_margins(get_margin(lines))
+                    await f2_2_2channel.purge(limit=5)
+                    embed = discord.Embed(title='Current Top Flips (1M Margin) 5 Stars')
+                    slistcut = list(slist.items())[:10]
+                    for i, (margin, aucstr) in enumerate(slistcut):
+                        embed.add_field(name=str(i+1)+'.', value=aucstr, inline=False)
+                    await f2_2_2channel.send(embed=embed)
                     f.truncate(0)
                 except:
                     pass
